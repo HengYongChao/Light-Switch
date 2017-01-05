@@ -1,0 +1,1 @@
+\pc-util\nrfutil dfu genpkg --application ../examples/BLE_Gateway/bin/rbc_gateway_example_serial_blinky_PCA10028_nRF51422_xxAC.hex --company-id 0x48454E47 --application-id 1 --application-version 2 --key-file private.txt --sd-req 0x0064 --mesh dfu_test.zip

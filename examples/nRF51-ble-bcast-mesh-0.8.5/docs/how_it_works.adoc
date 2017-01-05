@@ -1,0 +1,252 @@
+= How it works
+
+== Value storage
+
+All data in the mesh is stored in <handle-version-data> structures, and are
+shared across the mesh. Any device in the mesh may write to any handle, and the 
+latest version of the data is flooded across the network. This flooding is 
+controlled by the Trickle Algorithm, described below. Each mesh value may 
+contain up to 23 bytes of data, and each write to a value increments the 
+version number for that value by one.
+
+There may be up to 65535 Mesh value handles in the mesh. Each mesh value will 
+operate with their own instance of the Trickle algorithm, meaning that they 
+will be rebroadcasted independently. As the nRF51 doesn't have enough RAM to
+support storing all the handles at the same time, the framework employs two 
+"caches", which store the most recently used values. The "handle" cache stores
+the current version number of each known handle, and allows the framework to 
+decide whether an incoming packet is new or old, by comparing the packet version
+number to the one in the cache entry. The "data" cache stores a Trickle instance
+and a packet to be retransmitted. The most recently used handle cache entries 
+each have a pointer to a data cache entry, which is used when the packet is 
+scheduled for retransmission.
+
+== GATT Service
+The handle values may all be accessed from a single "value" characteristic. This 
+characteristic follows a very specific opcode-handle-data format, documented below.
+
+The GATT values are stored in the framework memory, but may be accessed through
+ a Softdevice connection via the Mesh value characteristic in the Mesh service 
+in the GATT server. This characteristic acts as a two way transport for mesh data,
+and requires a specific opcode-handle-data format, documented below.
+
+While the Mesh service has its own 16bit assigned UUID, the characteristics 
+operate with their own 128 bit UUID with the same base. Note that the Mesh
+characteristics changed both format and UUID for the v0.7.0 update of the 
+framework.
+
+.Assigned UUIDs
+|===
+|Value | UUID 
+
+|Mesh service | 0xFEE4
+|Mesh metadata characteristic | 0x2A1E0004-FD51-D882-8BA8-B98C0000CD1E
+|Mesh value characteristic | 0x2A1E0005-FD51-D882-8BA8-B98C0000CD1E
+|===
+
+=== Mesh values
+The mesh value characteristic is the two-way interface for the mesh values.
+While the mesh-device acts as the GATT server in the connection, the external
+device is regarded as the "Master", taking control of the mesh device by a set
+of commands, given to the mesh device by the GATT write without response action. 
+The mesh device will respond by sending GATT notifications to the external device, 
+containing various events or return codes.
+
+The characteristic follows a strict opcode-parameter format defined below. *All
+fields are little endian*, and fields marked with "`-`" are ignored.
+
+[style="monospaced", options="header", halign="center", valign="center"]
+.Value characteristic commands
+|===
+|Operation      | Opcode (1 byte) | Param byte 1 | Param byte 2 | Param byte 3  | Param byte 4  | ... | Param byte N
+
+h|Value set     | 0x00          2+| HANDLE                      | DATA LENGTH 3+| DATA
+h|Flag set      | 0x01          2+| HANDLE                      | FLAG INDEX    | FLAG VALUE  2+| -
+h|Flag request  | 0x02          2+| HANDLE                      | FLAG INDEX  3+| -  
+|===
+
+[style="monospaced", options="header", halign="center", valign="center"]
+.Value characteristic events
+|===
+|Operation          | Opcode (1 byte) | Param byte 1 | Param byte 2 | Param byte 3  | Param byte 4 | ... | Param byte N
+
+h|Value update      | 0x00          2+| HANDLE                      | DATA LENGTH 3+| DATA
+h|Command response  | 0x11            | CMD OPCODE   | RESULT     4+| -
+h|Flag response     | 0x12          2+| HANDLE                      | FLAG INDEX    |FLAG VALUE  2+| -   
+|===
+
+[style="monospaced", options="header", halign="center", valign="center"]
+.Value characteristic command response results
+|===
+|Result                  | Value
+
+h|Success                | 0x00         
+h|Error BUSY             | 0xF0        
+h|Error NOT FOUND        | 0xF1       
+h|Error INVALID HANDLE   | 0xF2      
+h|Error UNKNOWN FLAG     | 0xF3     
+h|Error INVALID OPCODE   | 0xF4    
+|===
+
+All commands sent to the mesh device yield a command response notification 
+containing the corresponding OPCODE and a result, except "Flag req", which 
+returns a "Flag rsp" event, containing the value of the given flag. The 
+following flags are available for set and request for each handle:
+[style="monospaced", options="header", halign="center", valign="center"]
+.Flag indexes
+|===
+|Flag type               | Index
+
+h|Value is persistent    | 0x00         
+h|Is being retransmitted | 0x01        
+|===
+
+Note that the GATT client (the external device) is responsible for enabling 
+notifications on the characteristic, a feature which isn't enabled by default
+in all frameworks. While the mesh device would be able to recevive commands from
+the external device without notifications, they are required for two way 
+communication.
+
+=== Mesh metadata
+For ease of use, the service also provides a Metadata characteristic, providing
+configuration parameters for the mesh. This meatadata characteristic may be
+read by external nodes, and used for configuring new nodes that the user wishes
+to add to the mesh. The Metadata characteristic is structured as follows:
+
+[cols="3,1,1,6", options="Header"]
+.Metadata Characteristic Structure
+|===
+|Value | Position | Size | Description
+
+|Access Address | 0 | 4 bytes | The Access address the mesh operates on. 
+|Advertisement interval | 4 | 4 bytes | The minimum advertisement interval each value
+is broadcasted with in milliseconds.
+|Value count | 8 | 1 byte | The amount of available value slots on the node
+|Channel | 9 | 1 byte | The BLE channel the mesh operates on
+|===
+
+
+
+== Trickle Algorithm
+The Trickle Algorithm was first presented by P. Levis of Stanford University
+and T. Clausen of LIX, Ecole Polytechnique in March 2010, and has since seen
+several revisions until it was published as RFC6202 in March 2011. The Trickle
+Algorithm provides a method of controlled packet flooding across a mesh of
+low-power lossy network nodes, by letting the nodes dynamically decide when to
+broadcast their values based on network activity and when the last update to
+state values arrived. 
+
+=== A brief overview
+The algorithm operate in exponentially growing time intervals of size I, starting at
+interval size Imin, growing up to Imax. During an interval, it registers all
+incoming messages, where each message may be either consistent or inconsistent
+with the nodes current state (the definition of consistency is left for the 
+user to decide). For each consistent message, a counter value, C is increased
+by one, and for each inconsistent message, if the interval size I is larger
+than Imin, the interval timer is reset, and I is set to Imin. At the start of
+each interval, a timer T is set for a random time in the range `[I/2, I)`. When
+this timer expires, the node shall broadcast its state if the consistent
+message counter C is less than some redundancy constant K. At the end of each
+interval, the interval length (I) is doubled if `I * 2 < Imax`, and C is reset.
+
+The exponential growth and insconsistency reset functionality allows the nodes
+in the network to grow exponentially more silent as the state remains
+unchanged, but still stays responsive, as new information arrives. The
+consistency counter C and redundancy constant K allows the system to
+dynamically adjust to network density, as nodes will choose not to transmit if
+they've heard the same message from other nodes several times.
+
+=== Usage in the framework
+The framework provides one instance of the Trickle Algorithm for each handle
+value pair (dubbed a Trickle instance). This means that when one value is frequently updated, while another
+one remains unchanged, the node only rebroadcasts the active value frequently,
+keeping the interval times for the static value high. Each handle-value pair
+also comes with a version number, which increases by one for each fresh write
+to a value. This version number, along with a checksum allows the framework to
+distinguish value consistency. If the node recevies a value update with a
+higher version number than its own, it will automatically overwrite the
+contents of the value data and notify the user. Any inconsistencies to both
+version number and checksum results in a reset of interval timing for the value
+in question. 
+
+=== Weaknesses in algorithm and implementation
+While the algorithm in its intended form provides a rather robust and
+effective packet propagation scheme, some necessary adjustments introduces a
+few weaknesses. First off, using several instances of the algorithm on the same
+set of nodes yields a growth in on-air collisions and poorer frequency
+utilization control, as the individual instances take no consideration to
+the others' activity. This means that the scheme doesn't scale that well with
+several handle value pairs, and the user is asked to consider this during
+implementation. The choice of doing separate trickle instances is, however a
+result of a tradeoff: If the entire node state shared one trickle instance, the
+entire state would be rebroadcasted each time a part of it is updated, 
+and the amount of shareable data would be severely limited by packet size and
+packet chaining possibilities.
+
+Another weakness in the adaption is caused by the fact that the Softdevice Timeslot API
+won't let the framework get free access to the radio at all times, resulting in
+a reduced on-air time for mesh related operations. When the
+Softdevice operates in an advertising state, this problem only has an impact of
+5-25% reduction in potential on-air time for mesh operations, but in a
+connected state with a short connection interval, the Softdevice may reduce
+timeslots by as much as 80%. This results in a lot of missed packets to the
+affected node, and may dramatically increase propagation time to this
+node. 
+
+== Timeslots
+The framework does all mesh-related transmissions in timeslots granted by the
+Softdevice Multiprotocol Timeslot API, operating directly on the radio hardware
+module. Timeslots are primarily allocated by extending, short timeslots into
+timeslots of upto 1 second, and the framework will attempt to seize the radio 
+for as much as the Softdevice will allow. At the beginning of each timeslot, 
+the framework samples the RTC0 Low Frequency Timer, and checks whether any 
+timers related to the Trickle Algorithm have expired since the end of the 
+previous timeslot. If this is the case, the framework does all pending 
+operations immediately. After this initial "catch up" operation, the framework 
+handles all operations as they appear for the remainder of the timeslot.
+
+For details about the Softdevice Multiprotocol Timeslot API, plese refer to the
+Softdevice Specification, available on the Nordic Semiconductor homepage.
+
+== Air interface packets
+All Mesh-related packets are broadcasted as regular BLE Nonconnectable
+Advertisements, with one exception: The Access address is set by the user,
+and does not have to match the Bluetooth Specification advertisement access
+address. The packet structure is illustrated below.
+
+image::packet_format.png[Packet format on air]
+
+== Resource allocation
+The framework takes control over several hardware and software resources,
+making these unavailable to applications:
+
+* *Timeslot API* All callbacks for timeslot sessions are held by the framework,
+
+* *QDEC_IRQ* The Quadrature decoder interrupt is used for asynchronous packet processing.
+If the QDEC hardware module interrupt is needed for other behavior, the SWI0-IRQ
+can be used instead. All IRQ related behavior is contained inside the event_handler 
+module.
+
+* *NRF_TIMER0* HF timer 0 is reset and started by the Timeslot API at the
+beginning of each timeslot, and all capture compare slots for this timer may be
+in use at any time
+
+* *NRF_RTC0* The Timeslot API uses RTC0 for timing, and manipulating this
+module will lead to undefined behavior or hardfaults in the Softdevice.
+
+* *NRF_PPI, channels 8-12* The framework uses PPI channel 8-12 for radio
+operation during timeslots, and the Softdevice may use channels 8+ outside them. Only
+channels 0-7 are safely available to the application (just as with regular
+ Softdevice applications).
+
+In addition, the Softdevice may block some hardware blocks not listed here.
+Please refer to the relevant Softdevice Specification for details (available at
+the Nordic Semiconductor homepage).
+
+=== Memory
+The program operates strictly on the stack, and compiled at Optimization level
+ -O0, Keil reports a program size of approx. 12kB, and stack size of 5.5kB 
+for the Template project under `examples/`.
+
+
+link:../README.adoc[Back to README]

@@ -10,7 +10,7 @@
       <TargetName>nRF51422 xxAC</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060183::V5.06 update 2 (build 183)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>nRF51822_xxAB</Device>
@@ -814,7 +814,7 @@
       <TargetName>nRF51422 xxAC serial</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060183::V5.06 update 2 (build 183)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>nRF51822_xxAC</Device>
@@ -1520,7 +1520,7 @@
       <TargetName>nRF51422 xxAC buttons</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
+      <pCCUsed>5060183::V5.06 update 2 (build 183)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>nRF51822_xxAC</Device>
@@ -5813,9 +5813,9 @@
             <v6WtE>0</v6WtE>
             <VariousControls>
               <MiscControls>--c99</MiscControls>
-              <Define>MESH_DFU RTT_LOG DEBUG  BOARD_PCA10028 NRF51 BLE_STACK_SUPPORT_REQD S110 SOFTDEVICE_PRESENT RBC_MESH_SERIAL RBC_MESH_DATA_CACHE_ENTRIES=2 RBC_MESH_HANDLE_CACHE_ENTRIES=3</Define>
+              <Define>DEBUG_LOG_RTT DEBUG  BOARD_LIGHTSWITCH NRF51 BLE_STACK_SUPPORT_REQD S110 SOFTDEVICE_PRESENT RBC_MESH_SERIAL RBC_MESH_DATA_CACHE_ENTRIES=2 RBC_MESH_HANDLE_CACHE_ENTRIES=3</Define>
               <Undefine></Undefine>
-              <IncludePath>..\include;..\..\..\RTT;..\..\..\rbc_mesh;..\..\..\rbc_mesh\include;..\..\..\..\..\bsp;..\..\..\SDK\bsp;..\..\..\..\..\..\components\softdevice\s110\headers;..\..\..\..\..\..\components\toolchain\gcc;..\..\..\..\..\..\components\libraries\util;..\..\..\..\..\..\components\ble\common;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\spi_slave;..\..\..\..\..\..\components\softdevice\common\softdevice_handler;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\common;..\..\..\..\..\..\components\drivers_nrf\gpiote;..\..\..\..\..\..\components\drivers_nrf\ppi;..\..\..\..\..\..\components\drivers_nrf\timer;..\..\..\..\..\..\components\libraries\button;..\..\..\..\..\..\components\libraries\fifo;..\..\..\..\..\..\components\libraries\gpiote;..\..\..\..\..\..\components\libraries\pwm;..\..\..\..\..\..\components\libraries\scheduler;..\..\..\..\..\..\components\libraries\simple_timer;..\..\..\..\..\..\components\libraries\timer;..\..\..\..\..\..\components\libraries\util</IncludePath>
+              <IncludePath>..\include;..\..\..\RTT;..\..\..\rbc_mesh;..\..\..\rbc_mesh\include;..\..\..\..\..\bsp;..\..\..\..\..\..\components\softdevice\s110\headers;..\..\..\..\..\..\components\toolchain\gcc;..\..\..\..\..\..\components\libraries\util;..\..\..\..\..\..\components\ble\common;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\spi_slave;..\..\..\..\..\..\components\softdevice\common\softdevice_handler;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\common;..\..\..\..\..\..\components\drivers_nrf\gpiote;..\..\..\..\..\..\components\drivers_nrf\ppi;..\..\..\..\..\..\components\drivers_nrf\timer;..\..\..\..\..\..\components\libraries\button;..\..\..\..\..\..\components\libraries\fifo;..\..\..\..\..\..\components\libraries\gpiote;..\..\..\..\..\..\components\libraries\pwm;..\..\..\..\..\..\components\libraries\scheduler;..\..\..\..\..\..\components\libraries\simple_timer;..\..\..\..\..\..\components\libraries\timer;..\..\..\..\..\..\components\libraries\util</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

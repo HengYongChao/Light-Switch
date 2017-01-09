@@ -38,6 +38,8 @@
   #include "nano_periph.h"
 #elif defined(BOARD_CUSTOM)
   #include "custom_board.h"
+#elif defined(BOARD_LIGHTSWITCH)
+  #include "lightswitch.h"
 #else
 #error "Board is not defined"
 #endif

@@ -60,7 +60,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #if DEBUG_LOG_RTT
 #include "SEGGER_RTT.h"
 #endif
-
+#include "nrf_delay.h"
+#include "app_pwm.h"
 
 #define MESH_ACCESS_ADDR        (RBC_MESH_ACCESS_ADDRESS_BLE_ADV)   /**< Access address for the mesh to operate on. */
 #define MESH_INTERVAL_MIN_MS    (100)                               /**< Mesh minimum advertisement interval in milliseconds. */
@@ -69,12 +70,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define APP_TIMER_MAX_TIMERS       (6+BSP_APP_TIMERS_NUMBER)      	/**< Maximum number of simultaneously created timers. */
 #define APP_TIMER_OP_QUEUE_SIZE    4                                /**< Size of timer operation queues. */
 
+#define HEARTBEAT_INTERVAL      APP_TIMER_TICKS(200, APP_TIMER_PRESCALER) /**< led1 heartbeat interval (ticks). */
+#define RELAY_INTERVAL      	APP_TIMER_TICKS(100, APP_TIMER_PRESCALER) /**< RELAY interval (ticks). */
 
-//static app_timer_id_t            m_heartbeat_timer_id;              /**< Battery timer. */
+static app_timer_id_t           m_heartbeat_timer_id;              /**< heartbeat timer. */
+static app_timer_id_t           m_relay_timer_id;                  /**< relay execute timer. */
 
 
-
-
+led_event_t	led_event;
+uint8_t relay_status = 0;
 
 #if NORDIC_SDK_VERSION >= 11
 nrf_nvic_state_t nrf_nvic_state = {0};
@@ -96,6 +100,52 @@ static nrf_clock_lf_cfg_t m_clock_cfg =
 #define EXAMPLE_DFU_BANK_ADDR   (0x40000)
 #endif
 
+void relay_on(void)
+{
+	nrf_gpio_pin_clear(RELAY_OFF);
+	nrf_gpio_pin_set(RELAY_ON);
+}
+void relay_off(void)
+{
+	nrf_gpio_pin_clear(RELAY_ON);
+	nrf_gpio_pin_set(RELAY_OFF);
+}
+void relay_idle(void)
+{
+	nrf_gpio_pin_clear(RELAY_ON);
+	nrf_gpio_pin_clear(RELAY_OFF);
+}
+
+/**@brief Function for handling the led blink timer timeout.
+ *
+ * @details This function will be called each time the led blink timer expires.
+ *
+ * @param[in] p_context  Pointer used for passing some arbitrary information (context) from the
+ *                       app_start_timer() call to the timeout handler.
+ */
+static void led_timeout_handler(void * p_context)
+{
+    UNUSED_PARAMETER(p_context);
+		
+    nrf_gpio_pin_toggle(BSP_LED_1);
+}
+
+
+/**@brief Function for handling the relay execute timer timeout.
+ *
+ * @details This function will be called each time relay execute timer expires.
+ *
+ * @param[in] p_context  Pointer used for passing some arbitrary information (context) from the
+ *                       app_start_timer() call to the timeout handler.
+ */
+static void relay_execute_handler(void * p_context)
+{
+    UNUSED_PARAMETER(p_context);		
+    relay_idle();	
+#ifdef DEBUG_LOG_RTT
+			SEGGER_RTT_printf(0, "relay_idle.\r\n");
+#endif	
+}
 
 
 /**
@@ -189,7 +239,6 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* p_evt)
 
             led_config(p_evt->params.rx.value_handle, p_evt->params.rx.p_data[0]);
             break;
-
         case RBC_MESH_EVENT_TYPE_TX:
             break;
 
@@ -237,17 +286,20 @@ void gpio_init(void)
         nrf_gpio_pin_set(LED_START + i);
     }
 
-#if defined(BOARD_PCA10001) || defined(BOARD_PCA10028) || defined(BOARD_PCA10040)
+#if defined(BOARD_LIGHTSWITCH)
 	
-	nrf_gpio_range_cfg_output(13,14);
-	nrf_gpio_pin_clear(13);
-	nrf_gpio_pin_clear(14);
-	nrf_gpio_range_cfg_output(26,27);
-	nrf_gpio_pin_clear(26);
-	nrf_gpio_pin_clear(27);	
-    nrf_gpio_cfg_output(11);
-	nrf_gpio_pin_clear(11);
-	nrf_gpio_cfg_input(12,NRF_GPIO_PIN_PULLUP);
+	nrf_gpio_cfg_output(RELAY_OFF);
+	nrf_gpio_pin_clear(RELAY_OFF);
+	nrf_gpio_cfg_output(RELAY_ON);
+	nrf_gpio_pin_clear(RELAY_ON);
+	
+	nrf_gpio_cfg_output(RELAY2_ON);	
+	nrf_gpio_pin_clear(RELAY2_ON);
+	nrf_gpio_cfg_output(RELAY2_OFF);	
+	nrf_gpio_pin_clear(RELAY2_OFF);	
+    nrf_gpio_cfg_output(IR_SEND);
+	nrf_gpio_pin_clear(IR_SEND);
+	nrf_gpio_cfg_input(IR_REC,NRF_GPIO_PIN_PULLUP);
 		
 #endif
 
@@ -268,7 +320,7 @@ void gpio_init(void)
  */
 void bsp_event_handler(bsp_event_t event)
 {
-//    uint32_t err_code;
+    uint32_t err_code;
     switch (event)
     {
         case BSP_EVENT_KEY_0:
@@ -276,6 +328,26 @@ void bsp_event_handler(bsp_event_t event)
 		SEGGER_RTT_printf(0, "BSP_EVENT_KEY_0.\r\n");
 #endif
 		nrf_gpio_pin_toggle(BSP_LED_0);
+		nrf_gpio_pin_toggle(BSP_LED_2);
+		if(relay_status)
+		{
+			relay_off();			
+			relay_status = 0;
+			err_code = app_timer_start(m_relay_timer_id, RELAY_INTERVAL, NULL);
+			APP_ERROR_CHECK(err_code);
+#ifdef DEBUG_LOG_RTT
+			SEGGER_RTT_printf(0, "relay_off.\r\n");
+#endif						
+		}else
+		{
+			relay_on();			
+			relay_status = 1;
+			err_code = app_timer_start(m_relay_timer_id, RELAY_INTERVAL, NULL);
+			APP_ERROR_CHECK(err_code);	
+#ifdef DEBUG_LOG_RTT
+			SEGGER_RTT_printf(0, "relay_on.\r\n");
+#endif			
+		}
 		
         break;
         case BSP_EVENT_KEY_1:
@@ -283,7 +355,26 @@ void bsp_event_handler(bsp_event_t event)
 		SEGGER_RTT_printf(0, "BSP_EVENT_KEY_1.\r\n");
 #endif
 		nrf_gpio_pin_toggle(BSP_LED_2);
-		
+		nrf_gpio_pin_toggle(BSP_LED_0);
+		if(relay_status)
+		{
+			relay_off();
+			relay_status = 0;
+			err_code = app_timer_start(m_relay_timer_id, RELAY_INTERVAL, NULL);
+			APP_ERROR_CHECK(err_code);
+#ifdef DEBUG_LOG_RTT
+			SEGGER_RTT_printf(0, "relay_off.\r\n");
+#endif						
+		}else
+		{
+			relay_on();
+			relay_status = 1;
+			err_code = app_timer_start(m_relay_timer_id, RELAY_INTERVAL, NULL);
+			APP_ERROR_CHECK(err_code);	
+#ifdef DEBUG_LOG_RTT
+			SEGGER_RTT_printf(0, "relay_on.\r\n");
+#endif			
+		}		
         break;
         case BSP_EVENT_KEY_2:
 #ifdef DEBUG_LOG_RTT
@@ -310,15 +401,36 @@ void bsp_event_handler(bsp_event_t event)
  */
 static void timers_init(void)
 {
-//    uint32_t err_code;
+    uint32_t err_code;
 
     // Initialize timer module.
     APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_MAX_TIMERS, APP_TIMER_OP_QUEUE_SIZE, false);
 
     // Create timers.
-//    err_code = app_timer_create(&m_battery_timer_id,
-//                                APP_TIMER_MODE_REPEATED,
-//                                battery_level_meas_timeout_handler);
+    err_code = app_timer_create(&m_heartbeat_timer_id, APP_TIMER_MODE_REPEATED, led_timeout_handler);                                                                
+    APP_ERROR_CHECK(err_code);
+	
+    err_code = app_timer_create(&m_relay_timer_id, APP_TIMER_MODE_SINGLE_SHOT, relay_execute_handler);                                                                
+    APP_ERROR_CHECK(err_code);	
+	
+}
+/**@brief Function for starting application timers.
+ */
+static void application_timers_start(void)
+{
+    uint32_t err_code;
+
+    // Start application timers.
+    err_code = app_timer_start(m_heartbeat_timer_id, HEARTBEAT_INTERVAL, &led_event);
+    APP_ERROR_CHECK(err_code);
+
+//    err_code = app_timer_start(m_relay_timer_id, RELAY_INTERVAL, NULL);
+//    APP_ERROR_CHECK(err_code);
+
+//    err_code = app_timer_start(m_rr_interval_timer_id, RR_INTERVAL_INTERVAL, NULL);
+//    APP_ERROR_CHECK(err_code);
+
+//    err_code = app_timer_start(m_sensor_contact_timer_id, SENSOR_CONTACT_DETECTED_INTERVAL, NULL);
 //    APP_ERROR_CHECK(err_code);
 }
 /**@brief Function for initializing buttons and leds.
@@ -395,7 +507,7 @@ int main(void)
 #endif  
 	
     app_button_enable();
-	
+	application_timers_start();
     rbc_mesh_event_t evt;
     while (true)
     {

@@ -78,20 +78,35 @@
 #define IR_SEND			11		
 #define IR_REC			12
 
-enum LED_EVENT_ENUM
+
+#define SOUND_EVENT_ON				50
+#define SOUND_EVENT_OFF				30
+#define MOTION_EVENT_ON				50
+#define MOTION_EVENT_OFF			30
+#define COMMUNICATE_EVENT_ON		3
+#define COMMUNICATE_EVENT_OFF		30				
+#define HEARTBEAT_EVENT_ON			1
+#define HEARTBEAT_EVENT_OFF			30
+
+
+
+
+typedef enum 
 {
-	SOUND_EVENT,
+	SOUND_EVENT = 0,
 	MOTION_EVENT,
 	COMMUNICATE_EVENT,
 	HEARTBEAT_EVENT,
 	FIRMWAREUPDATE_EVENT
-};
+}e_event;
 
 typedef struct 
 {
-	uint8_t		led_event; 
+	e_event			event_type;
+	uint16_t		on_time;
+	uint16_t		off_time;
+	_Bool 			status;
 }led_event_t;
 
 
-
-#endif // PCA10028_H
+#endif // LIGHT_SWITCH_H

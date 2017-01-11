@@ -343,6 +343,7 @@ void rbc_mesh_ble_evt_handler(ble_evt_t* p_evt)
 void rbc_mesh_sd_evt_handler(uint32_t sd_evt)
 {
     timeslot_sd_event_handler(sd_evt);
+	
 }
 
 /** Internal only function to push mesh events to application queue. */

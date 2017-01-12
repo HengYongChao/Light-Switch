@@ -85,7 +85,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SOUND_MES_INTERVAL    	APP_TIMER_TICKS(12, APP_TIMER_PRESCALER) 	/**< sound measure interval (ticks). */
 #define LIGHT_MES_INTERVAL    	APP_TIMER_TICKS(540, APP_TIMER_PRESCALER) 	/**< light sonsor measure interval (ticks). */
 #define TEMP_MES_INTERVAL    	APP_TIMER_TICKS(620, APP_TIMER_PRESCALER) 	/**< temperature measure interval (ticks). */
-	
+#define WATCHDOG_INTERVAL    	APP_TIMER_TICKS(1005, APP_TIMER_PRESCALER) 	/**< WATCHDOG interval (ticks). */
+		
 static app_timer_id_t           m_heartbeat_timer_id;              /**< heartbeat timer. */
 static app_timer_id_t           m_relay_timer_id;                  /**< relay execute timer. */
 static app_timer_id_t           m_communicate_timer_id;            /**< led communicate timer. */
@@ -94,7 +95,8 @@ static app_timer_id_t           m_pwm_update_timer_id;             /**< PWM upda
 static app_timer_id_t           m_pir_mes_timer_id;                /**< PIR measure timer. */
 static app_timer_id_t           m_sound_mes_timer_id;              /**< sound measure timer. */
 static app_timer_id_t           m_light_mes_timer_id;              /**< light sensor measure timer. */
-static app_timer_id_t           m_temp_mes_timer_id;              /**< temperature measure timer. */
+static app_timer_id_t           m_temp_mes_timer_id;               /**< temperature measure timer. */
+static app_timer_id_t           m_watchdog_timer_id;               /**< watchdog timer. */
 
 
 static volatile bool ready_flag;            // A flag indicating PWM status.
@@ -142,8 +144,6 @@ static nrf_clock_lf_cfg_t m_clock_cfg =
 #ifdef NRF52
 #define EXAMPLE_DFU_BANK_ADDR   (0x40000)
 #endif
-
-
 
 int16_t look_up_table(int16_t adc)
 {                                        
@@ -331,9 +331,8 @@ void update_led_event(led_event_e led_event_type)
  */
 static void led_heartbeat_handler(void * p_context)
 {
-    //UNUSED_PARAMETER(p_context);		
-	nrf_drv_wdt_channel_feed(m_channel_id);	//feed the dog
-	
+    UNUSED_PARAMETER(p_context);		
+		
 	if((led_event.event_type == SOUND_EVENT) || (led_event.event_type == MOTION_EVENT))
 	{
 
@@ -377,6 +376,18 @@ static void led_heartbeat_handler(void * p_context)
 	}
 		
 }
+/**@brief Function for handling the watchdog timer timeout.
+ *
+ * @details This function will be called each time the watchdog timer expires.
+ *
+ * @param[in] p_context  Pointer used for passing some arbitrary information (context) from the
+ *                       app_start_timer() call to the timeout handler.
+ */
+static void watch_dog_handler(void * p_context)
+{
+	UNUSED_PARAMETER(p_context);	
+	nrf_drv_wdt_channel_feed(m_channel_id);	//feed the dog
+}
 
 
 /**@brief Function for handling the relay execute timer timeout.
@@ -408,7 +419,7 @@ static void led_off_handler(void * p_context)
 	
 	led_event.status = false;
 	led_event.event_type = HEARTBEAT_EVENT;
-	led_event.off_time = HEARTBEAT_EVENT_OFF - 25;			//queick start heartbeat settings
+	led_event.off_time = HEARTBEAT_EVENT_OFF - 50;			//queick start blink ASAP.
 	led_event.on_time = HEARTBEAT_EVENT_ON;	
 	
 }
@@ -528,14 +539,12 @@ static void light_event_handler(void * p_context)
  */
 static void temperature_event_handler(void * p_context)
 {
-	int16_t temp;
 	
-	UNUSED_PARAMETER(p_context);		
-	temp_sample = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_5);		
-	temp = update_temperature((int16_t)temp_sample,true);
+	UNUSED_PARAMETER(p_context);				
+	temp_sample = update_temperature((int16_t)nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_5), true);
 	
 #ifdef DEBUG_LOG_RTT
-	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp);															
+	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp_sample);															
 #endif		
 			
 }
@@ -620,7 +629,8 @@ void sd_ble_evt_handler(ble_evt_t* p_ble_evt)
 */
 static void rbc_mesh_event_handler(rbc_mesh_event_t* p_evt)
 {   
-    switch (p_evt->type)
+    led_communicate_blink(COMMUNICATE_EVENT);
+	switch (p_evt->type)
     {
         case RBC_MESH_EVENT_TYPE_CONFLICTING_VAL:
         case RBC_MESH_EVENT_TYPE_NEW_VAL:
@@ -712,27 +722,8 @@ void bsp_event_handler(bsp_event_t event)
     switch (event)
     {
         case BSP_EVENT_KEY_0:
-//		nrf_gpio_pin_toggle(BSP_LED_0);
-//		nrf_gpio_pin_toggle(BSP_LED_2);						
-//		if(relay_status)
-//		{
-//			relay_off();			
-//			relay_status = 0;
-//			err_code = app_timer_start(m_relay_timer_id, RELAY_INTERVAL, NULL);
-//			APP_ERROR_CHECK(err_code);
-//						
-//		}else
-//		{
-//			relay_on();			
-//			relay_status = 1;
-//			err_code = app_timer_start(m_relay_timer_id, RELAY_INTERVAL, NULL);
-//			APP_ERROR_CHECK(err_code);				
-//		}		
-//        break;		
-		 nrf_adc_start();
 		
         case BSP_EVENT_KEY_1:
-
 		nrf_gpio_pin_toggle(BSP_LED_2);
 		nrf_gpio_pin_toggle(BSP_LED_0);
 		if(relay_status)
@@ -799,6 +790,9 @@ static void timers_init(void)
     err_code = app_timer_create(&m_temp_mes_timer_id, APP_TIMER_MODE_REPEATED, temperature_event_handler);                                                                
     APP_ERROR_CHECK(err_code);		
 	
+    err_code = app_timer_create(&m_watchdog_timer_id, APP_TIMER_MODE_REPEATED, watch_dog_handler);                                                                
+    APP_ERROR_CHECK(err_code);		
+	
 }
 /**@brief Function for starting application timers.
  */
@@ -810,9 +804,12 @@ static void application_timers_start(void)
     err_code = app_timer_start(m_sound_mes_timer_id, SOUND_MES_INTERVAL, NULL);			//12ms
     APP_ERROR_CHECK(err_code);		
 	
-    err_code = app_timer_start(m_heartbeat_timer_id, HEARTBEAT_INTERVAL, NULL);			//100ms
+    err_code = app_timer_start(m_watchdog_timer_id, WATCHDOG_INTERVAL, NULL);			//1000ms
     APP_ERROR_CHECK(err_code);
-
+	
+    err_code = app_timer_start(m_heartbeat_timer_id, HEARTBEAT_INTERVAL, NULL);		//100ms
+    APP_ERROR_CHECK(err_code);
+	
 //    err_code = app_timer_start(m_pwm_update_timer_id, PWM_UPDATE_INTERVAL, NULL);
 //    APP_ERROR_CHECK(err_code);	
 	
@@ -968,7 +965,7 @@ int main(void)
             rbc_mesh_event_handler(&evt);
             rbc_mesh_event_release(&evt);
 			
-			led_communicate_blink(COMMUNICATE_EVENT);
+			
         }				
 		//get_channel_adc();		
     }

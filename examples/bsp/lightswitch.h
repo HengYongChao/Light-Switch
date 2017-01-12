@@ -86,7 +86,7 @@
 #define COMMUNICATE_EVENT_ON		3
 #define COMMUNICATE_EVENT_OFF		30				
 #define HEARTBEAT_EVENT_ON			1
-#define HEARTBEAT_EVENT_OFF			30
+#define HEARTBEAT_EVENT_OFF			100
 
 
 typedef enum 

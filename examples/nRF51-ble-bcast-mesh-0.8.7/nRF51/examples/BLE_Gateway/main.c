@@ -72,19 +72,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MESH_INTERVAL_MIN_MS    (100)                               /**< Mesh minimum advertisement interval in milliseconds. */
 #define MESH_CHANNEL            (38)                                /**< BLE channel to operate on. Single channel only. */
 #define APP_TIMER_PRESCALER        0                                /**< Value of the RTC1 PRESCALER register. */
-#define APP_TIMER_MAX_TIMERS       (10 + BSP_APP_TIMERS_NUMBER)      	/**< Maximum number of simultaneously created timers. */
+#define APP_TIMER_MAX_TIMERS       (12 + BSP_APP_TIMERS_NUMBER)      	/**< Maximum number of simultaneously created timers. */
 #define APP_TIMER_OP_QUEUE_SIZE    4                                /**< Size of timer operation queues. */
 
-#define HEARTBEAT_INTERVAL      APP_TIMER_TICKS(100, APP_TIMER_PRESCALER) 	/**< led1 heartbeat interval (ticks). */
-#define RELAY_INTERVAL      	APP_TIMER_TICKS(100, APP_TIMER_PRESCALER) 	/**< RELAY interval (ticks). */
+#define HEARTBEAT_INTERVAL      APP_TIMER_TICKS(130, APP_TIMER_PRESCALER) 	/**< led1 heartbeat interval (ticks). */
+#define RELAY_INTERVAL      	APP_TIMER_TICKS(90, APP_TIMER_PRESCALER) 	/**< RELAY interval (ticks). */
 #define COMMUNICATE_INTERVAL    APP_TIMER_TICKS(50, APP_TIMER_PRESCALER) 	/**< communicate led interval (ticks). */
-#define MOTION_SOUND_INTERVAL   APP_TIMER_TICKS(3000, APP_TIMER_PRESCALER) 	/**< SOUND&MOTION led interval (ticks). */
-#define PWM_UPDATE_INTERVAL     APP_TIMER_TICKS(75, APP_TIMER_PRESCALER) 	
+#define MOTION_SOUND_INTERVAL   APP_TIMER_TICKS(3060, APP_TIMER_PRESCALER) 	/**< SOUND&MOTION led interval (ticks). */
+#define PWM_UPDATE_INTERVAL     APP_TIMER_TICKS(70, APP_TIMER_PRESCALER) 	
 /* a man breath rates 16-20 per minute, T = 3s - 3.75s, step length 40, so interval 75-93 */
-#define PIR_MES_INTERVAL    	APP_TIMER_TICKS(200, APP_TIMER_PRESCALER) 	/**< sound measure interval (ticks). */
-#define SOUND_MES_INTERVAL    	APP_TIMER_TICKS(10, APP_TIMER_PRESCALER) 	/**< sound measure interval (ticks). */
-
-
+#define PIR_MES_INTERVAL    	APP_TIMER_TICKS(180, APP_TIMER_PRESCALER) 	/**< sound measure interval (ticks). */
+#define SOUND_MES_INTERVAL    	APP_TIMER_TICKS(12, APP_TIMER_PRESCALER) 	/**< sound measure interval (ticks). */
+#define LIGHT_MES_INTERVAL    	APP_TIMER_TICKS(540, APP_TIMER_PRESCALER) 	/**< light sonsor measure interval (ticks). */
+#define TEMP_MES_INTERVAL    	APP_TIMER_TICKS(620, APP_TIMER_PRESCALER) 	/**< temperature measure interval (ticks). */
 	
 static app_timer_id_t           m_heartbeat_timer_id;              /**< heartbeat timer. */
 static app_timer_id_t           m_relay_timer_id;                  /**< relay execute timer. */
@@ -93,15 +93,31 @@ static app_timer_id_t           m_motion_sound_timer_id;           /**< motion a
 static app_timer_id_t           m_pwm_update_timer_id;             /**< PWM update timer. */
 static app_timer_id_t           m_pir_mes_timer_id;                /**< PIR measure timer. */
 static app_timer_id_t           m_sound_mes_timer_id;              /**< sound measure timer. */
+static app_timer_id_t           m_light_mes_timer_id;              /**< light sensor measure timer. */
+static app_timer_id_t           m_temp_mes_timer_id;              /**< temperature measure timer. */
+
 
 static volatile bool ready_flag;            // A flag indicating PWM status.
 volatile int32_t adc_sample[4];
 volatile int32_t PIR_Buffer[2];
 volatile int32_t sound_sample = 0;
+volatile int32_t light_sample = 0;
+volatile int32_t temp_sample = 0;
+volatile int16_t temp_centigrade;
+volatile int16_t temp_fahrenheit; 
+volatile int16_t calibration_temperature = 0;
+
 led_event_t			 led_event;
 uint8_t 			 relay_status = 0;
 nrf_drv_wdt_channel_id m_channel_id;		//wdt
-void update_led_event(e_event led_event_type);
+void update_led_event(led_event_e led_event_type);
+
+
+uint16_t const ntc_table_10K[20] =	
+{
+	25,	39,	61,	83,	102, 113, 112, 101,	85,
+	67,	51,	38,	28,	21,	15,	11,	8, 6, 5, 19
+};
 
 
 APP_PWM_INSTANCE(PWM1,1);                   // Create the instance "PWM1" using TIMER1.
@@ -126,6 +142,66 @@ static nrf_clock_lf_cfg_t m_clock_cfg =
 #ifdef NRF52
 #define EXAMPLE_DFU_BANK_ADDR   (0x40000)
 #endif
+
+
+
+int16_t look_up_table(int16_t adc)
+{                                        
+    int16_t val, work_var;
+    int16_t index = 19;
+       
+    work_var = ntc_table_10K[index]; 
+    if(work_var > adc)
+    {
+        val = (index - 4) * 100; // >= max range, so use the last point of array
+        return ((int16_t)val);                                                         
+    }                         
+    do                        
+    {
+        index--;
+        work_var += ntc_table_10K[index];    //check which range match current value:L14 + (L13 - L14) + (L12-L13) + ... + [L (x - 1) - Lx] + [Lx - L (x + 1) ] = L (x + 1)
+        if(work_var > adc)    //can check relative document in : Z:\Designs\Temperature\Curves\ThermistorCurves_VoltageCalcs.xls
+        {
+            val = (work_var - adc) * 100;    //get the difference value between current value and nearest default point
+            val /= ntc_table_10K[index];
+            if(index >= 4)
+            {
+                val += ((index - 4) * 100);    //get nearest temperature point value
+                val &= 0x7fff;
+            }
+            else
+            {
+                val += index * 100;
+                val = 400 - val;
+                val |= 0x8000;
+            }                     
+            return ((int16_t)val);        
+        }                 
+    } while(index);                                                                      
+
+//	val = index * 100; 
+	val = 400 | 0x8000;
+    return ((int16_t)val);  
+}
+
+int16_t update_temperature(int16_t adc, _Bool c)
+{
+	int16_t deg_temp = (int16_t)(look_up_table(adc));
+	if(deg_temp & 0x8000) // minus temperature
+		deg_temp = -(signed int)(deg_temp & 0x7fff);
+	
+	temp_centigrade = deg_temp + calibration_temperature;
+	temp_fahrenheit = temp_centigrade * 9 / 5 + 320;
+
+//	if((output_auto_manual & 0x01) == 0x01)
+//		temp_centigrade = output_manual_value_temp;
+	if(c)
+		return temp_centigrade;
+	else 
+		return temp_fahrenheit;
+		
+}
+
 
 /**
  * @brief WDT events handler.
@@ -196,7 +272,7 @@ void relay_idle(void)
 	nrf_gpio_pin_clear(RELAY_OFF);
 }
 
-void led_communicate_blink(e_event led_event_type)
+void led_communicate_blink(led_event_e led_event_type)
 {
 	//UNUSED_PARAMETER(led_event_type);
 	update_led_event(led_event_type);
@@ -205,7 +281,7 @@ void led_communicate_blink(e_event led_event_type)
 	uint32_t err_code = app_timer_start(m_communicate_timer_id, COMMUNICATE_INTERVAL, NULL);
 	APP_ERROR_CHECK(err_code);	
 }
-void motion_sound_event_set(e_event led_event_type)
+void motion_sound_event_set(led_event_e led_event_type)
 {
 	update_led_event(led_event_type);
 	nrf_gpio_pin_clear(BSP_LED_1);	
@@ -218,7 +294,7 @@ void motion_sound_event_set(e_event led_event_type)
 
 
 
-void update_led_event(e_event led_event_type)
+void update_led_event(led_event_e led_event_type)
 {
 	led_event.status = true ;	//led bright on first.
 	
@@ -424,6 +500,46 @@ static void sound_event_handler(void * p_context)
 		
 }
 
+/**@brief Function for handling the light event timer timeout.
+ *
+ * @details This function will be called each light event timer expires.
+ *
+ * @param[in] p_context  Pointer used for passing some arbitrary information (context) from the
+ *                       app_start_timer() call to the timeout handler.
+ */
+static void light_event_handler(void * p_context)
+{
+	
+	UNUSED_PARAMETER(p_context);	
+	
+	light_sample = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_3);	
+			
+//#ifdef DEBUG_LOG_RTT
+//	SEGGER_RTT_printf(0, "light:%2d LUX.\r\n",(uint16_t)light_sample);															
+//#endif		
+			
+}
+/**@brief Function for handling the temperature event timer timeout.
+ *
+ * @details This function will be called each temperature event timer expires.
+ *
+ * @param[in] p_context  Pointer used for passing some arbitrary information (context) from the
+ *                       app_start_timer() call to the timeout handler.
+ */
+static void temperature_event_handler(void * p_context)
+{
+	int16_t temp;
+	
+	UNUSED_PARAMETER(p_context);		
+	temp_sample = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_5);		
+	temp = update_temperature((int16_t)temp_sample,true);
+	
+#ifdef DEBUG_LOG_RTT
+	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp);															
+#endif		
+			
+}
+
 /**
 * @brief General error handler.
 */
@@ -584,7 +700,6 @@ void gpio_init(void)
         nrf_gpio_cfg_input(BUTTON_4, NRF_GPIO_PIN_PULLUP);
     #endif
 #endif
-
 }
 
 /**@brief Function for handling events from the BSP module.
@@ -677,7 +792,12 @@ static void timers_init(void)
 	
     err_code = app_timer_create(&m_sound_mes_timer_id, APP_TIMER_MODE_REPEATED, sound_event_handler);                                                                
     APP_ERROR_CHECK(err_code);		
+		
+    err_code = app_timer_create(&m_light_mes_timer_id, APP_TIMER_MODE_REPEATED, light_event_handler);                                                                
+    APP_ERROR_CHECK(err_code);		
 	
+    err_code = app_timer_create(&m_temp_mes_timer_id, APP_TIMER_MODE_REPEATED, temperature_event_handler);                                                                
+    APP_ERROR_CHECK(err_code);		
 	
 }
 /**@brief Function for starting application timers.
@@ -687,19 +807,24 @@ static void application_timers_start(void)
     uint32_t err_code;
 
     // Start application timers.
-    err_code = app_timer_start(m_heartbeat_timer_id, HEARTBEAT_INTERVAL, NULL);
+    err_code = app_timer_start(m_sound_mes_timer_id, SOUND_MES_INTERVAL, NULL);			//12ms
+    APP_ERROR_CHECK(err_code);		
+	
+    err_code = app_timer_start(m_heartbeat_timer_id, HEARTBEAT_INTERVAL, NULL);			//100ms
     APP_ERROR_CHECK(err_code);
 
 //    err_code = app_timer_start(m_pwm_update_timer_id, PWM_UPDATE_INTERVAL, NULL);
 //    APP_ERROR_CHECK(err_code);	
 	
-    err_code = app_timer_start(m_pir_mes_timer_id, PIR_MES_INTERVAL, NULL);
+    err_code = app_timer_start(m_pir_mes_timer_id, PIR_MES_INTERVAL, NULL);				//200ms
+    APP_ERROR_CHECK(err_code);		
+	
+    err_code = app_timer_start(m_light_mes_timer_id, LIGHT_MES_INTERVAL, NULL);			//500ms
     APP_ERROR_CHECK(err_code);	
 	
-    err_code = app_timer_start(m_sound_mes_timer_id, SOUND_MES_INTERVAL, NULL);
-    APP_ERROR_CHECK(err_code);	
+    err_code = app_timer_start(m_temp_mes_timer_id, TEMP_MES_INTERVAL, NULL);			//600ms
+    APP_ERROR_CHECK(err_code);
 	
-
 }
 /**@brief Function for initializing buttons and leds.
  *
@@ -758,7 +883,7 @@ int main(void)
 	/* Initialize button and leds. */
 	buttons_leds_init();
 	
-//	bsp_pwm_init();
+	//bsp_pwm_init();
 	adc_config();
 	/* Initialize wdt modle */
 	bsp_wdt_init();

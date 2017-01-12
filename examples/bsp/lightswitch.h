@@ -89,8 +89,6 @@
 #define HEARTBEAT_EVENT_OFF			30
 
 
-
-
 typedef enum 
 {
 	SOUND_EVENT = 0,
@@ -98,15 +96,46 @@ typedef enum
 	COMMUNICATE_EVENT,
 	HEARTBEAT_EVENT,
 	FIRMWAREUPDATE_EVENT
-}e_event;
+}led_event_e;
+
+
+typedef enum
+{
+	SWITCH_ON,			// KEY STATUS ON
+	SWITCH_OFF,	
+	BL_ON,				//BACK LIGHT ON
+	BL_OFF,
+	BL_BREATH
+}switch_event_e;
+
 
 typedef struct 
 {
-	e_event			event_type;
+	led_event_e		event_type;
 	uint16_t		on_time;
 	uint16_t		off_time;
 	_Bool 			status;
 }led_event_t;
+
+
+//typedef struct
+//{
+//	
+//#ifdef  ONE_SWITCH
+
+//#elif	TWO_SWITCH
+
+//#elif	THREE_SWITCH
+
+//#else	//OTHERS_SWITCH
+
+//#endif	
+//			
+//}switch_event_t;
+
+
+
+
 
 
 #endif // LIGHT_SWITCH_H

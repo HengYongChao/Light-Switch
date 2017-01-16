@@ -44,10 +44,10 @@ int main(void)
     ret_code_t err_code;
     
     /* 2-channel PWM, 200Hz, output on DK LED pins. */
-    app_pwm_config_t pwm1_cfg = APP_PWM_DEFAULT_CONFIG_2CH(5000L, BSP_LED_0, BSP_LED_1);
+    app_pwm_config_t pwm1_cfg = APP_PWM_DEFAULT_CONFIG_2CH(5000L, BSP_LED_0, BSP_LED_2);
     
     /* Switch the polarity of the second channel. */
-    pwm1_cfg.pin_polarity[1] = APP_PWM_POLARITY_ACTIVE_HIGH;
+    pwm1_cfg.pin_polarity[1] = APP_PWM_POLARITY_ACTIVE_LOW;
     
     /* Initialize and enable PWM. */
     err_code = app_pwm_init(&PWM1,&pwm1_cfg,pwm_ready_callback);
@@ -68,7 +68,7 @@ int main(void)
             /* ... or wait for callback. */
             while(!ready_flag);
             APP_ERROR_CHECK(app_pwm_channel_duty_set(&PWM1, 1, value));
-            nrf_delay_ms(25);
+            nrf_delay_ms(80);
         }
     }
     

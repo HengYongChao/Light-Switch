@@ -72,23 +72,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MESH_INTERVAL_MIN_MS    (100)                               /**< Mesh minimum advertisement interval in milliseconds. */
 #define MESH_CHANNEL            (38)                                /**< BLE channel to operate on. Single channel only. */
 #define APP_TIMER_PRESCALER        0                                /**< Value of the RTC1 PRESCALER register. */
-#define APP_TIMER_MAX_TIMERS       (12 + BSP_APP_TIMERS_NUMBER)      	/**< Maximum number of simultaneously created timers. */
+#define APP_TIMER_MAX_TIMERS       (20 + BSP_APP_TIMERS_NUMBER)      	/**< Maximum number of simultaneously created timers. */
 #define APP_TIMER_OP_QUEUE_SIZE    4                                /**< Size of timer operation queues. */
 
 #define HEARTBEAT_INTERVAL      APP_TIMER_TICKS(130, APP_TIMER_PRESCALER) 	/**< led1 heartbeat interval (ticks). */
 #define RELAY_INTERVAL      	APP_TIMER_TICKS(90, APP_TIMER_PRESCALER) 	/**< RELAY interval (ticks). */
 #define COMMUNICATE_INTERVAL    APP_TIMER_TICKS(50, APP_TIMER_PRESCALER) 	/**< communicate led interval (ticks). */
-#define MOTION_SOUND_INTERVAL   APP_TIMER_TICKS(3060, APP_TIMER_PRESCALER) 	/**< SOUND&MOTION led interval (ticks). */
-#define PWM_UPDATE_INTERVAL     APP_TIMER_TICKS(70, APP_TIMER_PRESCALER) 	
+#define MOTION_SOUND_INTERVAL   APP_TIMER_TICKS(3760, APP_TIMER_PRESCALER) 	/**< SOUND&MOTION led interval (ticks). */
 /* a man breath rates 16-20 per minute, T = 3s - 3.75s, step length 40, so interval 75-93 */
+#define PWM_UPDATE_INTERVAL     APP_TIMER_TICKS(85, APP_TIMER_PRESCALER) 	
 #define PIR_MES_INTERVAL    	APP_TIMER_TICKS(180, APP_TIMER_PRESCALER) 	/**< sound measure interval (ticks). */
 #define SOUND_MES_INTERVAL    	APP_TIMER_TICKS(12, APP_TIMER_PRESCALER) 	/**< sound measure interval (ticks). */
 #define LIGHT_MES_INTERVAL    	APP_TIMER_TICKS(540, APP_TIMER_PRESCALER) 	/**< light sonsor measure interval (ticks). */
 #define TEMP_MES_INTERVAL    	APP_TIMER_TICKS(620, APP_TIMER_PRESCALER) 	/**< temperature measure interval (ticks). */
-#define WATCHDOG_INTERVAL    	APP_TIMER_TICKS(1005, APP_TIMER_PRESCALER) 	/**< WATCHDOG interval (ticks). */
-		
+#define WATCHDOG_INTERVAL    	APP_TIMER_TICKS(1005, APP_TIMER_PRESCALER) 	/**< watchdog interval (ticks). */
+#define KEY_PERIOD_HANG_SENSOR	APP_TIMER_TICKS(3009, APP_TIMER_PRESCALER)  /**< detect key hang motion and sound interval (ticks). */
+
 static app_timer_id_t           m_heartbeat_timer_id;              /**< heartbeat timer. */
+#ifdef RELAY_LATCH
 static app_timer_id_t           m_relay_timer_id;                  /**< relay execute timer. */
+#endif
 static app_timer_id_t           m_communicate_timer_id;            /**< led communicate timer. */
 static app_timer_id_t           m_motion_sound_timer_id;           /**< motion and sound event timer. */
 static app_timer_id_t           m_pwm_update_timer_id;             /**< PWM update timer. */
@@ -97,6 +100,7 @@ static app_timer_id_t           m_sound_mes_timer_id;              /**< sound me
 static app_timer_id_t           m_light_mes_timer_id;              /**< light sensor measure timer. */
 static app_timer_id_t           m_temp_mes_timer_id;               /**< temperature measure timer. */
 static app_timer_id_t           m_watchdog_timer_id;               /**< watchdog timer. */
+static app_timer_id_t           m_hang_on_timer_id;                /**< hang on sound & pir timer. */
 
 
 static volatile bool ready_flag;            // A flag indicating PWM status.
@@ -110,6 +114,7 @@ volatile int16_t temp_fahrenheit;
 volatile int16_t calibration_temperature = 0;
 
 led_event_t			 led_event;
+pwm_enevt_t			 pwm_event;
 uint8_t 			 relay_status = 0;
 nrf_drv_wdt_channel_id m_channel_id;		//wdt
 void update_led_event(led_event_e led_event_type);
@@ -144,6 +149,33 @@ static nrf_clock_lf_cfg_t m_clock_cfg =
 #ifdef NRF52
 #define EXAMPLE_DFU_BANK_ADDR   (0x40000)
 #endif
+
+
+void shut_pir_sound_timer(void)
+{
+	uint32_t err_code;	
+	err_code = app_timer_stop(m_pir_mes_timer_id);
+	APP_ERROR_CHECK(err_code);	
+	err_code = app_timer_stop(m_sound_mes_timer_id);
+	APP_ERROR_CHECK(err_code);	
+}
+	
+void open_pir_sound_timer(void)
+{
+    uint32_t err_code;
+	err_code = app_timer_start(m_pir_mes_timer_id, PIR_MES_INTERVAL, NULL);				
+    APP_ERROR_CHECK(err_code);	
+    err_code = app_timer_start(m_sound_mes_timer_id, SOUND_MES_INTERVAL, NULL);			
+    APP_ERROR_CHECK(err_code);	
+}
+
+void update_pwm_value(uint32_t value)	
+{
+	
+	while (app_pwm_channel_duty_set(&PWM1, 0, value) == NRF_ERROR_BUSY);
+	while (app_pwm_channel_duty_set(&PWM1, 1, value) == NRF_ERROR_BUSY);
+	
+}
 
 int16_t look_up_table(int16_t adc)
 {                                        
@@ -256,6 +288,7 @@ void leds_on_for_while(void)
 	nrf_gpio_pin_clear(BSP_LED_3);
 }
 
+#ifdef RELAY_LATCH
 void relay_on(void)
 {
 	nrf_gpio_pin_clear(RELAY_OFF);
@@ -266,6 +299,17 @@ void relay_off(void)
 	nrf_gpio_pin_clear(RELAY_ON);
 	nrf_gpio_pin_set(RELAY_OFF);
 }
+#else
+void relay_on(void)
+{
+	nrf_gpio_pin_set(13);
+}
+void relay_off(void)
+{
+	nrf_gpio_pin_clear(13);
+}
+#endif
+
 void relay_idle(void)
 {
 	nrf_gpio_pin_clear(RELAY_ON);
@@ -288,7 +332,10 @@ void motion_sound_event_set(led_event_e led_event_type)
 	
 	uint32_t err_code = app_timer_start(m_motion_sound_timer_id, MOTION_SOUND_INTERVAL, NULL);
 	APP_ERROR_CHECK(err_code);	
-		
+	
+	memset(&pwm_event,0,sizeof(pwm_event));
+	err_code = app_timer_start(m_pwm_update_timer_id, PWM_UPDATE_INTERVAL, &pwm_event);
+	APP_ERROR_CHECK(err_code);			
 }
 
 
@@ -359,14 +406,7 @@ static void led_heartbeat_handler(void * p_context)
 				led_event.on_time = (uint16_t)HEARTBEAT_EVENT_ON;
 				led_event.off_time = (uint16_t)HEARTBEAT_EVENT_OFF; 		
 			}			
-		}
-
-//#ifdef DEBUG_LOG_RTT
-//		SEGGER_RTT_printf(0, "status:%2d,ON%2d,OFF%2d,\r\n",led_event.status,
-//															(uint16_t)led_event.on_time,
-//															(uint16_t)led_event.off_time);
-//#endif
-		
+		}		
 	}else if(led_event.event_type == FIRMWAREUPDATE_EVENT)
 	{
 		
@@ -397,13 +437,38 @@ static void watch_dog_handler(void * p_context)
  * @param[in] p_context  Pointer used for passing some arbitrary information (context) from the
  *                       app_start_timer() call to the timeout handler.
  */
+#ifdef RELAY_LATCH
 static void relay_execute_handler(void * p_context)
 {
     UNUSED_PARAMETER(p_context);		
-    relay_idle();	
-	
+    relay_idle();		
 }
-
+#endif
+/**@brief Function for handling the led stay timer timeout.
+ *
+ * @details This function will be called each led stay execute timer expires.
+ *
+ * @param[in] p_context  Pointer used for passing some arbitrary information (context) from the
+ *                       app_start_timer() call to the timeout handler.
+ */
+static void led_off_handler(void * p_context)
+{
+    uint32_t err_code;
+	
+	UNUSED_PARAMETER(p_context);		
+    nrf_gpio_pin_set(BSP_LED_1);	
+	//update_led_event(HEARTBEAT_EVENT);
+	
+	led_event.status = false;
+	led_event.event_type = HEARTBEAT_EVENT;
+	led_event.off_time = HEARTBEAT_EVENT_OFF - 40;			//queick start blink ASAP.
+	led_event.on_time = HEARTBEAT_EVENT_ON;		
+	
+    err_code = app_timer_start(m_pir_mes_timer_id, PIR_MES_INTERVAL, NULL);				
+    APP_ERROR_CHECK(err_code);	
+    err_code = app_timer_start(m_sound_mes_timer_id, SOUND_MES_INTERVAL, NULL);			
+    APP_ERROR_CHECK(err_code);	
+}
 /**@brief Function for handling the led communicate timer timeout.
  *
  * @details This function will be called each led communicate execute timer expires.
@@ -411,18 +476,29 @@ static void relay_execute_handler(void * p_context)
  * @param[in] p_context  Pointer used for passing some arbitrary information (context) from the
  *                       app_start_timer() call to the timeout handler.
  */
-static void led_off_handler(void * p_context)
-{
-    UNUSED_PARAMETER(p_context);		
+static void blink_off_handler(void * p_context)
+{	
+	UNUSED_PARAMETER(p_context);		
     nrf_gpio_pin_set(BSP_LED_1);	
-	//update_led_event(HEARTBEAT_EVENT);
+	update_led_event(HEARTBEAT_EVENT);			
+}
+
+/**@brief Function for handling the pir&sound hang on timer timeout.
+ *
+ * @details This function will be called each led pir&sound hang on execute timer expires.
+ *
+ * @param[in] p_context  Pointer used for passing some arbitrary information (context) from the
+ *                       app_start_timer() call to the timeout handler.
+ */
+static void hang_on_handler(void * p_context)
+{	
 	
-	led_event.status = false;
-	led_event.event_type = HEARTBEAT_EVENT;
-	led_event.off_time = HEARTBEAT_EVENT_OFF - 50;			//queick start blink ASAP.
-	led_event.on_time = HEARTBEAT_EVENT_ON;	
+	UNUSED_PARAMETER(p_context);		
+
+	open_pir_sound_timer();
 	
 }
+
 /**@brief Function for handling the pwm update timer timeout.
  *
  * @details This function will be called each pem update timer expires.
@@ -432,30 +508,43 @@ static void led_off_handler(void * p_context)
  */
 static void pwm_update_handler(void * p_context)
 {
-    uint8_t	i;
-	uint32_t	value ;
+    uint32_t		err_code;
+	uint32_t		value ;	
+	pwm_enevt_t	*	p_pe;     
 	
-	UNUSED_PARAMETER(p_context);	
+	p_pe = (pwm_enevt_t*) p_context;
 	
-	for ( i = 0; i < 40; ++i)
-	{
-		value = (i < 20) ? (i * 5) : (100 - (i - 20) * 5);
-		
+	p_pe->loop++;
+	if(p_pe->loop <= 40)
+	{						
+		if(p_pe->tendency)
+		{									
+			value = (p_pe->loop < 20) ? (100 - p_pe->loop * 5) : (p_pe->loop * 5);	/*¡ü ¡ý*/	
+		}else
+		{			
+			value = (p_pe->loop < 20) ? (p_pe->loop * 5) : (100 - (p_pe->loop - 20) * 5);	/*¡ý ¡ü*/
+		}
+					
 		ready_flag = false;
 		/* Set the duty cycle - keep trying until PWM is ready... */
-        while (app_pwm_channel_duty_set(&PWM1, 0, value) == NRF_ERROR_BUSY);
-        while (app_pwm_channel_duty_set(&PWM1, 1, value) == NRF_ERROR_BUSY);
-		
+		while (app_pwm_channel_duty_set(&PWM1, 0, value) == NRF_ERROR_BUSY);
+		;
+		while (app_pwm_channel_duty_set(&PWM1, 1, value) == NRF_ERROR_BUSY);
+		;
 		/* ... or wait for callback. */
-//		while(!ready_flag);
-//		APP_ERROR_CHECK(app_pwm_channel_duty_set(&PWM1, 1, value));
+		//while(!ready_flag);
+		//APP_ERROR_CHECK(app_pwm_channel_duty_set(&PWM1, 1, value));
+
+//#ifdef DEBUG_LOG_RTT
+//		SEGGER_RTT_printf(0, "pwm_update %d,%d.\r\n",(uint8_t)p_pe->loop,(uint16_t)value);
+//#endif					
 		
-#ifdef DEBUG_LOG_RTT
-			SEGGER_RTT_printf(0, "pwm_update %d,%d.\r\n",(uint8_t)i,(uint16_t)value);
-#endif			
+	}else
+	{
+		err_code = app_timer_stop(m_pwm_update_timer_id);
+		APP_ERROR_CHECK(err_code);		
+	}	
 		
-	}
-			
 }
 
 /**@brief Function for handling the PIR update timer timeout.
@@ -467,21 +556,24 @@ static void pwm_update_handler(void * p_context)
  */
 static void pir_event_handler(void * p_context)
 {
-//	int8_t slop;
+//	uint32_t err_code;
 	
 	UNUSED_PARAMETER(p_context);	
 	PIR_Buffer[0] = PIR_Buffer[1];
 	
 	PIR_Buffer[1] = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_4);	
 	
-	if(PIR_Buffer[1] < 300) 
+	if(PIR_Buffer[1] < 200) 
 	{
 		update_led_event(MOTION_EVENT);
 		motion_sound_event_set(MOTION_EVENT);
-		
+				
 #ifdef DEBUG_LOG_RTT
 		SEGGER_RTT_printf(0, "MOTION_EVENT\r\n");															
-#endif		
+#endif	
+
+		shut_pir_sound_timer();
+		
 	}
 		
 }
@@ -494,6 +586,7 @@ static void pir_event_handler(void * p_context)
  */
 static void sound_event_handler(void * p_context)
 {
+	uint32_t err_code;
 	
 	UNUSED_PARAMETER(p_context);	
 	
@@ -506,7 +599,12 @@ static void sound_event_handler(void * p_context)
 		
 #ifdef DEBUG_LOG_RTT
 		SEGGER_RTT_printf(0, "SOUND_EVENT\r\n");															
-#endif		
+#endif	
+
+		err_code = app_timer_stop(m_pir_mes_timer_id);
+		APP_ERROR_CHECK(err_code);	
+		err_code = app_timer_stop(m_sound_mes_timer_id);
+		APP_ERROR_CHECK(err_code);		
 	}
 		
 }
@@ -525,9 +623,7 @@ static void light_event_handler(void * p_context)
 	
 	light_sample = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_3);	
 			
-//#ifdef DEBUG_LOG_RTT
-//	SEGGER_RTT_printf(0, "light:%2d LUX.\r\n",(uint16_t)light_sample);															
-//#endif		
+		
 			
 }
 /**@brief Function for handling the temperature event timer timeout.
@@ -543,9 +639,9 @@ static void temperature_event_handler(void * p_context)
 	UNUSED_PARAMETER(p_context);				
 	temp_sample = update_temperature((int16_t)nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_5), true);
 	
-#ifdef DEBUG_LOG_RTT
-	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp_sample);															
-#endif		
+//#ifdef DEBUG_LOG_RTT
+//	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp_sample);															
+//#endif		
 			
 }
 
@@ -723,21 +819,47 @@ void bsp_event_handler(bsp_event_t event)
     {
         case BSP_EVENT_KEY_0:
 		
-        case BSP_EVENT_KEY_1:
-		nrf_gpio_pin_toggle(BSP_LED_2);
-		nrf_gpio_pin_toggle(BSP_LED_0);
+        case BSP_EVENT_KEY_1:		
 		if(relay_status)
 		{
+			
+			relay_status = 0;			
+			update_pwm_value(0x00);
+			shut_pir_sound_timer();		
+			err_code = app_timer_start(m_hang_on_timer_id, KEY_PERIOD_HANG_SENSOR, NULL);			
+			APP_ERROR_CHECK(err_code);	
+
+			#ifdef RELAY_LATCH	
 			relay_off();
-			relay_status = 0;
 			err_code = app_timer_start(m_relay_timer_id, RELAY_INTERVAL, NULL);
-			APP_ERROR_CHECK(err_code);						
+			APP_ERROR_CHECK(err_code);	
+			#else
+			relay_off();
+			#endif
+			
+
+			#ifdef DEBUG_LOG_RTT
+			SEGGER_RTT_printf(0, "relay_off.\r\n");	
+			#endif			
 		}else
 		{
-			relay_on();
+			
 			relay_status = 1;
+			update_pwm_value(100);	
+			#ifdef RELAY_LATCH
+			relay_on();
 			err_code = app_timer_start(m_relay_timer_id, RELAY_INTERVAL, NULL);
-			APP_ERROR_CHECK(err_code);				
+			APP_ERROR_CHECK(err_code);
+			#else
+			relay_on();
+			#endif
+			shut_pir_sound_timer();	
+			err_code = app_timer_start(m_hang_on_timer_id, KEY_PERIOD_HANG_SENSOR, NULL);			
+			APP_ERROR_CHECK(err_code);
+			
+			#ifdef DEBUG_LOG_RTT
+			SEGGER_RTT_printf(0, "relay_on.\r\n");
+			#endif
 		}		
         break;
         case BSP_EVENT_KEY_2:
@@ -759,17 +881,22 @@ static void timers_init(void)
 {
     uint32_t err_code;
 
+	/* The timer library enables the application to create multiple timer instances based on the RTC1 peripheral. 
+		Checking for time-outs and invoking the user time-out handlers is performed in the RTC1 interrupt handler. 
+		List handling is done using a software interrupt (SWI0). Both interrupt handlers are running in APP_LOW priority level. */	
     // Initialize timer module.
     APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_MAX_TIMERS, APP_TIMER_OP_QUEUE_SIZE, false);
-
+		
     // Create timers.
     err_code = app_timer_create(&m_heartbeat_timer_id, APP_TIMER_MODE_REPEATED, led_heartbeat_handler);                                                                
     APP_ERROR_CHECK(err_code);
 	// Create relay execute timer.
+	#ifdef RELAY_LATCH
     err_code = app_timer_create(&m_relay_timer_id, APP_TIMER_MODE_SINGLE_SHOT, relay_execute_handler);                                                                
     APP_ERROR_CHECK(err_code);	
+	#endif
 	
-    err_code = app_timer_create(&m_communicate_timer_id, APP_TIMER_MODE_SINGLE_SHOT, led_off_handler);                                                                
+    err_code = app_timer_create(&m_communicate_timer_id, APP_TIMER_MODE_SINGLE_SHOT, blink_off_handler);                                                                
     APP_ERROR_CHECK(err_code);	
 
     err_code = app_timer_create(&m_pwm_update_timer_id, APP_TIMER_MODE_REPEATED, pwm_update_handler);                                                                
@@ -791,7 +918,10 @@ static void timers_init(void)
     APP_ERROR_CHECK(err_code);		
 	
     err_code = app_timer_create(&m_watchdog_timer_id, APP_TIMER_MODE_REPEATED, watch_dog_handler);                                                                
-    APP_ERROR_CHECK(err_code);		
+    APP_ERROR_CHECK(err_code);	
+
+    err_code = app_timer_create(&m_hang_on_timer_id, APP_TIMER_MODE_SINGLE_SHOT, hang_on_handler);                                                                
+    APP_ERROR_CHECK(err_code);	
 	
 }
 /**@brief Function for starting application timers.
@@ -809,10 +939,7 @@ static void application_timers_start(void)
 	
     err_code = app_timer_start(m_heartbeat_timer_id, HEARTBEAT_INTERVAL, NULL);		//100ms
     APP_ERROR_CHECK(err_code);
-	
-//    err_code = app_timer_start(m_pwm_update_timer_id, PWM_UPDATE_INTERVAL, NULL);
-//    APP_ERROR_CHECK(err_code);	
-	
+		
     err_code = app_timer_start(m_pir_mes_timer_id, PIR_MES_INTERVAL, NULL);				//200ms
     APP_ERROR_CHECK(err_code);		
 	
@@ -844,13 +971,17 @@ void bsp_pwm_init(void)
     app_pwm_config_t pwm1_cfg = APP_PWM_DEFAULT_CONFIG_2CH(5000L, BSP_LED_0, BSP_LED_2);
     
     /* Switch the polarity of the second channel. */
-    pwm1_cfg.pin_polarity[1] = APP_PWM_POLARITY_ACTIVE_LOW;	//APP_PWM_POLARITY_ACTIVE_HIGH
-    
+	pwm1_cfg.pin_polarity[0] = APP_PWM_POLARITY_ACTIVE_HIGH;
+    pwm1_cfg.pin_polarity[1] = APP_PWM_POLARITY_ACTIVE_HIGH;	//APP_PWM_POLARITY_ACTIVE_HIGH
+    	
     /* Initialize and enable PWM. */
-    err_code = app_pwm_init(&PWM1,&pwm1_cfg,pwm_ready_callback);	//pwm_ready_callback
+    err_code = app_pwm_init(&PWM1,&pwm1_cfg,NULL);	//pwm_ready_callback
     APP_ERROR_CHECK(err_code);
+		
+    app_pwm_enable(&PWM1);	
 	
-    //app_pwm_enable(&PWM1);	
+	while (app_pwm_channel_duty_set(&PWM1, 0, 100) == NRF_ERROR_BUSY);	
+	while (app_pwm_channel_duty_set(&PWM1, 1, 100) == NRF_ERROR_BUSY);
 }
 
 void bsp_wdt_init(void)
@@ -875,18 +1006,20 @@ int main(void)
     gpio_init();
 	/* power on led light on for a while */
 	leds_on_for_while();
-    /* Initialize timer module. */
+    /* Initialize timer module.*/
     timers_init();
-	/* Initialize button and leds. */
+	/* Initialize button and leds.*/
 	buttons_leds_init();
-	
-	//bsp_pwm_init();
+	/* Initialize pwm.*/
+	bsp_pwm_init();
+	/* Initialize adc config.*/
 	adc_config();
 	/* Initialize wdt modle */
 	bsp_wdt_init();
 	
 #ifdef DEBUG_LOG_RTT	// RTT debug interface.
 	SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+	SEGGER_RTT_printf(0, "SEGGER_RTT init ok.\r\n");
 #endif	
 	
     /* Enable Softdevice (including sd_ble before framework */
@@ -895,7 +1028,7 @@ int main(void)
 #else
     SOFTDEVICE_HANDLER_INIT(MESH_CLOCK_SOURCE,NULL); 
 #endif    
-    
+
     softdevice_ble_evt_handler_set(sd_ble_evt_handler); 
 	/* app-defined event handler, as we need to send it to the nrf_adv_conn module and the rbc_mesh */
     softdevice_sys_evt_handler_set(rbc_mesh_sd_evt_handler);

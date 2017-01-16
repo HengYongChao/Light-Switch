@@ -120,21 +120,19 @@ typedef struct
 
 //typedef struct
 //{
-//	
-//#ifdef  ONE_SWITCH
-
-//#elif	TWO_SWITCH
-
-//#elif	THREE_SWITCH
-
-//#else	//OTHERS_SWITCH
-
-//#endif	
-//			
+//#ifdef  	ONE_SWITCH
+//#elif		TWO_SWITCH
+//#elif		THREE_SWITCH
+//#else		//OTHERS_SWITCH
+//#endif			
 //}switch_event_t;
 
 
-
+typedef struct 
+{
+	uint8_t loop;
+	uint8_t tendency;
+}pwm_enevt_t;
 
 
 

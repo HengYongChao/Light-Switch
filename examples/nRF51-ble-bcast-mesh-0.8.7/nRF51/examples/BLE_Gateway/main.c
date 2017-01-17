@@ -513,13 +513,15 @@ static void pwm_update_handler(void * p_context)
 	pwm_enevt_t	*	p_pe;     
 	
 	p_pe = (pwm_enevt_t*) p_context;
-	
-	p_pe->loop++;
+	p_pe->loop++;		
+
 	if(p_pe->loop <= 40)
 	{						
-		if(p_pe->tendency)
+				
+		//if(p_pe->tendency)
+		if(relay_status)
 		{									
-			value = (p_pe->loop < 20) ? (100 - p_pe->loop * 5) : (p_pe->loop * 5);	/*¡ü ¡ý*/	
+			value = (p_pe->loop < 20) ? (100 - p_pe->loop * 5) : (p_pe->loop * 5 - 100);	/*¡ü ¡ý*/	
 		}else
 		{			
 			value = (p_pe->loop < 20) ? (p_pe->loop * 5) : (100 - (p_pe->loop - 20) * 5);	/*¡ý ¡ü*/
@@ -542,7 +544,9 @@ static void pwm_update_handler(void * p_context)
 	}else
 	{
 		err_code = app_timer_stop(m_pwm_update_timer_id);
-		APP_ERROR_CHECK(err_code);		
+		APP_ERROR_CHECK(err_code);	
+
+		
 	}	
 		
 }
@@ -559,7 +563,7 @@ static void pir_event_handler(void * p_context)
 //	uint32_t err_code;
 	
 	UNUSED_PARAMETER(p_context);	
-	PIR_Buffer[0] = PIR_Buffer[1];
+	//PIR_Buffer[0] = PIR_Buffer[1];
 	
 	PIR_Buffer[1] = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_4);	
 	
@@ -569,7 +573,7 @@ static void pir_event_handler(void * p_context)
 		motion_sound_event_set(MOTION_EVENT);
 				
 #ifdef DEBUG_LOG_RTT
-		SEGGER_RTT_printf(0, "MOTION_EVENT\r\n");															
+		SEGGER_RTT_printf(0, "MOTION_EVENT %2d\r\n",(uint16_t)PIR_Buffer[1]);															
 #endif	
 
 		shut_pir_sound_timer();
@@ -592,13 +596,13 @@ static void sound_event_handler(void * p_context)
 	
 	sound_sample = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_2);	
 	
-	if(sound_sample > 200) 
+	if(sound_sample > 250) 
 	{
 		update_led_event(SOUND_EVENT);
 		motion_sound_event_set(SOUND_EVENT);
 		
 #ifdef DEBUG_LOG_RTT
-		SEGGER_RTT_printf(0, "SOUND_EVENT\r\n");															
+		SEGGER_RTT_printf(0, "SOUND_EVENT %2d\r\n",(uint16_t)sound_sample);															
 #endif	
 
 		err_code = app_timer_stop(m_pir_mes_timer_id);
@@ -997,7 +1001,13 @@ void bsp_wdt_init(void)
     nrf_drv_wdt_enable();	
 }
 
-
+/**@brief Function for initializing services that will be used by the application.
+ *
+ * @details Initialize the Heart Rate, Battery and Device Information services.
+ */
+//static void services_init(void)
+//{
+//}
 
 /** @brief main function */
 int main(void)
@@ -1096,11 +1106,9 @@ int main(void)
         if (rbc_mesh_event_get(&evt) == NRF_SUCCESS)
         {   
             rbc_mesh_event_handler(&evt);
-            rbc_mesh_event_release(&evt);
-			
-			
-        }				
-		//get_channel_adc();		
+            rbc_mesh_event_release(&evt);						
+        }						
+		sd_app_evt_wait();
     }
 }
 

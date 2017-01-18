@@ -67,13 +67,23 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "nrf_wdt.h"
 #include "nrf_drv_wdt.h"
 #include "app_util_platform.h"
+//#include "ble_bas.h"
+#include "ble_dis.h"
+//#include "ble_srv_common.h"
 
-#define MESH_ACCESS_ADDR        (RBC_MESH_ACCESS_ADDRESS_BLE_ADV)   /**< Access address for the mesh to operate on. */
-#define MESH_INTERVAL_MIN_MS    (100)                               /**< Mesh minimum advertisement interval in milliseconds. */
-#define MESH_CHANNEL            (38)                                /**< BLE channel to operate on. Single channel only. */
-#define APP_TIMER_PRESCALER        0                                /**< Value of the RTC1 PRESCALER register. */
-#define APP_TIMER_MAX_TIMERS       (20 + BSP_APP_TIMERS_NUMBER)      	/**< Maximum number of simultaneously created timers. */
-#define APP_TIMER_OP_QUEUE_SIZE    4                                /**< Size of timer operation queues. */
+
+#define DEVICE_NAME                  "LIGHT_SWITCH_BLE_MESH" /**< Name of device. Will be included in the advertising data. */
+#define MANUFACTURER_NAME            "TEMCOCONTROLS"     	/**< Manufacturer. Will be passed to Device Information Service. */
+#define DEVICE_HARDWARE_VERSION		 "v3B"					/* Device hardware version */
+#define DEVICE_FIRMWARE_VERSION		 "v3.26.0"				/* Device firmware version */
+#define DEVICE_SERIAL_NUMBER		 "0123-4567-89AB"		/* device serial number */
+
+#define MESH_ACCESS_ADDR        	(RBC_MESH_ACCESS_ADDRESS_BLE_ADV)   /**< Access address for the mesh to operate on. */
+#define MESH_INTERVAL_MIN_MS    	(100)                               /**< Mesh minimum advertisement interval in milliseconds. */
+#define MESH_CHANNEL            	(38)                                /**< BLE channel to operate on. Single channel only. */
+#define APP_TIMER_PRESCALER        	0                                /**< Value of the RTC1 PRESCALER register. */
+#define APP_TIMER_MAX_TIMERS       	(20 + BSP_APP_TIMERS_NUMBER)      	/**< Maximum number of simultaneously created timers. */
+#define APP_TIMER_OP_QUEUE_SIZE    	4                                /**< Size of timer operation queues. */
 
 #define HEARTBEAT_INTERVAL      APP_TIMER_TICKS(130, APP_TIMER_PRESCALER) 	/**< led1 heartbeat interval (ticks). */
 #define RELAY_INTERVAL      	APP_TIMER_TICKS(90, APP_TIMER_PRESCALER) 	/**< RELAY interval (ticks). */
@@ -1005,9 +1015,48 @@ void bsp_wdt_init(void)
  *
  * @details Initialize the Heart Rate, Battery and Device Information services.
  */
-//static void services_init(void)
-//{
-//}
+static void services_init(void)
+{
+    uint32_t       err_code;
+//    ble_bas_init_t bas_init;
+	ble_dis_init_t dis_init;
+
+
+//    // Initialize Battery Service.
+//    memset(&bas_init, 0, sizeof(bas_init));
+
+//    // Here the sec level for the Battery Service can be changed/increased.
+//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.cccd_write_perm);
+//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.read_perm);
+//    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&bas_init.battery_level_char_attr_md.write_perm);
+
+//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_report_read_perm);
+
+//    bas_init.evt_handler          = NULL;
+//    bas_init.support_notification = true;
+//    bas_init.p_report_ref         = NULL;
+//    bas_init.initial_batt_level   = 100;
+
+//    err_code = ble_bas_init(&m_bas, &bas_init);
+//    APP_ERROR_CHECK(err_code);	
+	
+	
+    // Initialize Device Information Service. 
+    memset(&dis_init, 0, sizeof(dis_init));
+
+    ble_srv_ascii_to_utf8(&dis_init.manufact_name_str, (char *)MANUFACTURER_NAME);
+	ble_srv_ascii_to_utf8(&dis_init.model_num_str, (char *)DEVICE_NAME);
+	ble_srv_ascii_to_utf8(&dis_init.hw_rev_str, (char *)DEVICE_HARDWARE_VERSION);
+	ble_srv_ascii_to_utf8(&dis_init.fw_rev_str, (char *)DEVICE_FIRMWARE_VERSION);
+	ble_srv_ascii_to_utf8(&dis_init.serial_num_str, (char *)DEVICE_SERIAL_NUMBER);
+	
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&dis_init.dis_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&dis_init.dis_attr_md.write_perm);
+
+    err_code = ble_dis_init(&dis_init);
+    APP_ERROR_CHECK(err_code);	
+	
+}
 
 /** @brief main function */
 int main(void)
@@ -1071,6 +1120,8 @@ int main(void)
     APP_ERROR_CHECK(mesh_aci_start());
 #endif
     
+	services_init();
+	
 #ifdef BLINKY   
     led_init ();
     rtc_1_init ();

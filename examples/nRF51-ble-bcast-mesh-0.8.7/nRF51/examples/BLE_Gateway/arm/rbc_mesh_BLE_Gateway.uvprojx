@@ -751,6 +751,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1481,6 +1486,11 @@
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2310,6 +2320,11 @@
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3189,6 +3204,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -4017,6 +4037,11 @@
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4847,6 +4872,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -5578,6 +5608,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -5990,7 +6025,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>RELAY_LATCH DEBUG  BOARD_LIGHTSWITCH NRF51 BLE_STACK_SUPPORT_REQD S110 SOFTDEVICE_PRESENT RBC_MESH_SERIAL RBC_MESH_DATA_CACHE_ENTRIES=2 RBC_MESH_HANDLE_CACHE_ENTRIES=3</Define>
               <Undefine></Undefine>
-              <IncludePath>..\include;..\..\..\RTT;..\..\..\..\..\bsp;..\..\..\rbc_mesh;..\..\..\rbc_mesh\include;..\..\..\..\..\..\components\softdevice\s110\headers;..\..\..\..\..\..\components\softdevice\common\softdevice_handler;..\..\..\..\..\..\components\toolchain\gcc;..\..\..\..\..\..\components\ble\common;..\..\..\..\..\..\components\drivers_nrf\wdt;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\spi_slave;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\common;..\..\..\..\..\..\components\drivers_nrf\gpiote;..\..\..\..\..\..\components\drivers_nrf\ppi;..\..\..\..\..\..\components\drivers_nrf\timer;..\..\..\..\..\..\components\libraries\util;..\..\..\..\..\..\components\libraries\button;..\..\..\..\..\..\components\libraries\fifo;..\..\..\..\..\..\components\libraries\gpiote;..\..\..\..\..\..\components\libraries\scheduler;..\..\..\..\..\..\components\libraries\simple_timer;..\..\..\..\..\..\components\libraries\timer;..\..\..\..\..\..\components\libraries\util;..\..\..\SDK\10\pwm</IncludePath>
+              <IncludePath>..\include;..\..\..\RTT;..\..\..\..\..\bsp;..\..\..\rbc_mesh;..\..\..\rbc_mesh\include;..\..\..\..\..\..\components\softdevice\s110\headers;..\..\..\..\..\..\components\softdevice\common\softdevice_handler;..\..\..\..\..\..\components\toolchain\gcc;..\..\..\..\..\..\components\ble\common;..\..\..\..\..\..\components\drivers_nrf\wdt;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\spi_slave;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\common;..\..\..\..\..\..\components\drivers_nrf\gpiote;..\..\..\..\..\..\components\drivers_nrf\ppi;..\..\..\..\..\..\components\drivers_nrf\timer;..\..\..\..\..\..\components\libraries\util;..\..\..\..\..\..\components\libraries\button;..\..\..\..\..\..\components\libraries\fifo;..\..\..\..\..\..\components\libraries\gpiote;..\..\..\..\..\..\components\libraries\scheduler;..\..\..\..\..\..\components\libraries\simple_timer;..\..\..\..\..\..\components\libraries\timer;..\..\..\..\..\..\components\libraries\util;..\..\..\SDK\10\pwm;..\..\..\..\..\..\components\ble\ble_services\ble_dis;..\..\..\SDK\ble_service</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -6308,6 +6343,11 @@
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -7186,6 +7226,11 @@
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
             </File>
           </Files>
         </Group>

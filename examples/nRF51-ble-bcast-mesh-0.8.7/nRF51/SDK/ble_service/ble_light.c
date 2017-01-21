@@ -15,7 +15,7 @@
 *  qualification listings, this section of source code must not be modified.
 */
 
-#include "ble_sensor.h"
+#include "ble_light.h"
 #include <string.h>
 #include "nordic_common.h"
 #include "ble_srv_common.h"

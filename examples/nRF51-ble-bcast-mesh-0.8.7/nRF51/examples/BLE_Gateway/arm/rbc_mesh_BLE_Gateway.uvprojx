@@ -747,14 +747,19 @@
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\hal\nrf_adc.c</FilePath>
             </File>
             <File>
+              <FileName>nrf_assert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+            </File>
+            <File>
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
             <File>
-              <FileName>ble_srv_common.c</FileName>
+              <FileName>pstorage.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\drivers_nrf\pstorage\pstorage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -770,11 +775,6 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\RTT\SEGGER_RTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_advdata.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
             </File>
             <File>
               <FileName>softdevice_handler.c</FileName>
@@ -822,9 +822,9 @@
               <FilePath>..\..\..\..\..\..\components\libraries\util\app_util_platform.c</FilePath>
             </File>
             <File>
-              <FileName>nrf_assert.c</FileName>
+              <FileName>app_trace.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\libraries\trace\app_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -835,6 +835,36 @@
               <FileName>ble_dis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_dis\ble_dis.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_advdata.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_cts_c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_cts_c\ble_cts_c.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>device_manager_peripheral.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\device_manager\device_manager_peripheral.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_db_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_db_discovery\ble_db_discovery.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_temperature.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1483,14 +1513,19 @@
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\hal\nrf_adc.c</FilePath>
             </File>
             <File>
+              <FileName>nrf_assert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+            </File>
+            <File>
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
             <File>
-              <FileName>ble_srv_common.c</FileName>
+              <FileName>pstorage.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\drivers_nrf\pstorage\pstorage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1506,11 +1541,6 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\RTT\SEGGER_RTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_advdata.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
             </File>
             <File>
               <FileName>softdevice_handler.c</FileName>
@@ -1558,9 +1588,9 @@
               <FilePath>..\..\..\..\..\..\components\libraries\util\app_util_platform.c</FilePath>
             </File>
             <File>
-              <FileName>nrf_assert.c</FileName>
+              <FileName>app_trace.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\libraries\trace\app_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1571,6 +1601,36 @@
               <FileName>ble_dis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_dis\ble_dis.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_advdata.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_cts_c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_cts_c\ble_cts_c.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>device_manager_peripheral.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\device_manager\device_manager_peripheral.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_db_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_db_discovery\ble_db_discovery.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_temperature.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2317,14 +2377,19 @@
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\hal\nrf_adc.c</FilePath>
             </File>
             <File>
+              <FileName>nrf_assert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+            </File>
+            <File>
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
             <File>
-              <FileName>ble_srv_common.c</FileName>
+              <FileName>pstorage.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\drivers_nrf\pstorage\pstorage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2340,11 +2405,6 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\RTT\SEGGER_RTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_advdata.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
             </File>
             <File>
               <FileName>softdevice_handler.c</FileName>
@@ -2392,9 +2452,9 @@
               <FilePath>..\..\..\..\..\..\components\libraries\util\app_util_platform.c</FilePath>
             </File>
             <File>
-              <FileName>nrf_assert.c</FileName>
+              <FileName>app_trace.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\libraries\trace\app_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2405,6 +2465,36 @@
               <FileName>ble_dis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_dis\ble_dis.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_advdata.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_cts_c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_cts_c\ble_cts_c.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>device_manager_peripheral.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\device_manager\device_manager_peripheral.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_db_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_db_discovery\ble_db_discovery.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_temperature.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3200,14 +3290,19 @@
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\hal\nrf_adc.c</FilePath>
             </File>
             <File>
+              <FileName>nrf_assert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+            </File>
+            <File>
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
             <File>
-              <FileName>ble_srv_common.c</FileName>
+              <FileName>pstorage.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\drivers_nrf\pstorage\pstorage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3223,11 +3318,6 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\RTT\SEGGER_RTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_advdata.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
             </File>
             <File>
               <FileName>softdevice_handler.c</FileName>
@@ -3275,9 +3365,9 @@
               <FilePath>..\..\..\..\..\..\components\libraries\util\app_util_platform.c</FilePath>
             </File>
             <File>
-              <FileName>nrf_assert.c</FileName>
+              <FileName>app_trace.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\libraries\trace\app_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3288,6 +3378,36 @@
               <FileName>ble_dis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_dis\ble_dis.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_advdata.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_cts_c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_cts_c\ble_cts_c.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>device_manager_peripheral.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\device_manager\device_manager_peripheral.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_db_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_db_discovery\ble_db_discovery.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_temperature.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4034,14 +4154,19 @@
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\hal\nrf_adc.c</FilePath>
             </File>
             <File>
+              <FileName>nrf_assert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+            </File>
+            <File>
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
             <File>
-              <FileName>ble_srv_common.c</FileName>
+              <FileName>pstorage.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\drivers_nrf\pstorage\pstorage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4057,11 +4182,6 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\RTT\SEGGER_RTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_advdata.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
             </File>
             <File>
               <FileName>softdevice_handler.c</FileName>
@@ -4109,9 +4229,9 @@
               <FilePath>..\..\..\..\..\..\components\libraries\util\app_util_platform.c</FilePath>
             </File>
             <File>
-              <FileName>nrf_assert.c</FileName>
+              <FileName>app_trace.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\libraries\trace\app_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4122,6 +4242,36 @@
               <FileName>ble_dis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_dis\ble_dis.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_advdata.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_cts_c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_cts_c\ble_cts_c.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>device_manager_peripheral.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\device_manager\device_manager_peripheral.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_db_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_db_discovery\ble_db_discovery.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_temperature.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4868,14 +5018,19 @@
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\hal\nrf_adc.c</FilePath>
             </File>
             <File>
+              <FileName>nrf_assert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+            </File>
+            <File>
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
             <File>
-              <FileName>ble_srv_common.c</FileName>
+              <FileName>pstorage.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\drivers_nrf\pstorage\pstorage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4891,11 +5046,6 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\RTT\SEGGER_RTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_advdata.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
             </File>
             <File>
               <FileName>softdevice_handler.c</FileName>
@@ -4943,9 +5093,9 @@
               <FilePath>..\..\..\..\..\..\components\libraries\util\app_util_platform.c</FilePath>
             </File>
             <File>
-              <FileName>nrf_assert.c</FileName>
+              <FileName>app_trace.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\libraries\trace\app_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -4956,6 +5106,36 @@
               <FileName>ble_dis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_dis\ble_dis.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_advdata.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_cts_c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_cts_c\ble_cts_c.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>device_manager_peripheral.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\device_manager\device_manager_peripheral.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_db_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_db_discovery\ble_db_discovery.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_temperature.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5604,14 +5784,19 @@
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\hal\nrf_adc.c</FilePath>
             </File>
             <File>
+              <FileName>nrf_assert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+            </File>
+            <File>
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
             <File>
-              <FileName>ble_srv_common.c</FileName>
+              <FileName>pstorage.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\drivers_nrf\pstorage\pstorage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5627,11 +5812,6 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\RTT\SEGGER_RTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_advdata.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
             </File>
             <File>
               <FileName>softdevice_handler.c</FileName>
@@ -5679,9 +5859,9 @@
               <FilePath>..\..\..\..\..\..\components\libraries\util\app_util_platform.c</FilePath>
             </File>
             <File>
-              <FileName>nrf_assert.c</FileName>
+              <FileName>app_trace.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\libraries\trace\app_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5692,6 +5872,36 @@
               <FileName>ble_dis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_dis\ble_dis.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_advdata.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_cts_c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_cts_c\ble_cts_c.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>device_manager_peripheral.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\device_manager\device_manager_peripheral.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_db_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_db_discovery\ble_db_discovery.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_temperature.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -6025,7 +6235,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>RELAY_LATCH DEBUG  BOARD_LIGHTSWITCH NRF51 BLE_STACK_SUPPORT_REQD S110 SOFTDEVICE_PRESENT RBC_MESH_SERIAL RBC_MESH_DATA_CACHE_ENTRIES=2 RBC_MESH_HANDLE_CACHE_ENTRIES=3</Define>
               <Undefine></Undefine>
-              <IncludePath>..\include;..\..\..\RTT;..\..\..\..\..\bsp;..\..\..\rbc_mesh;..\..\..\rbc_mesh\include;..\..\..\..\..\..\components\softdevice\s110\headers;..\..\..\..\..\..\components\softdevice\common\softdevice_handler;..\..\..\..\..\..\components\toolchain\gcc;..\..\..\..\..\..\components\ble\common;..\..\..\..\..\..\components\drivers_nrf\wdt;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\spi_slave;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\common;..\..\..\..\..\..\components\drivers_nrf\gpiote;..\..\..\..\..\..\components\drivers_nrf\ppi;..\..\..\..\..\..\components\drivers_nrf\timer;..\..\..\..\..\..\components\libraries\util;..\..\..\..\..\..\components\libraries\button;..\..\..\..\..\..\components\libraries\fifo;..\..\..\..\..\..\components\libraries\gpiote;..\..\..\..\..\..\components\libraries\scheduler;..\..\..\..\..\..\components\libraries\simple_timer;..\..\..\..\..\..\components\libraries\timer;..\..\..\..\..\..\components\libraries\util;..\..\..\SDK\10\pwm;..\..\..\..\..\..\components\ble\ble_services\ble_dis;..\..\..\SDK\ble_service</IncludePath>
+              <IncludePath>..\include;..\..\..\RTT;..\..\..\..\..\bsp;..\..\..\rbc_mesh;..\..\..\rbc_mesh\include;..\..\..\..\..\..\components\softdevice\s110\headers;..\..\..\..\..\..\components\softdevice\common\softdevice_handler;..\..\..\..\..\..\components\toolchain\gcc;..\..\..\..\..\..\components\ble\common;..\..\..\..\..\..\components\drivers_nrf\wdt;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\spi_slave;..\..\..\..\..\..\components\drivers_nrf\hal;..\..\..\..\..\..\components\drivers_nrf\common;..\..\..\..\..\..\components\drivers_nrf\gpiote;..\..\..\..\..\..\components\drivers_nrf\ppi;..\..\..\..\..\..\components\drivers_nrf\timer;..\..\..\..\..\..\components\libraries\util;..\..\..\..\..\..\components\libraries\button;..\..\..\..\..\..\components\libraries\fifo;..\..\..\..\..\..\components\libraries\gpiote;..\..\..\..\..\..\components\libraries\scheduler;..\..\..\..\..\..\components\libraries\simple_timer;..\..\..\..\..\..\components\libraries\timer;..\..\..\..\..\..\components\libraries\util;..\..\..\SDK\10\pwm;..\..\..\SDK\ble_service;..\..\..\..\..\..\components\ble\ble_services\ble_dis;..\..\..\..\..\..\components\ble\ble_services\ble_cts_c;..\..\..\..\..\..\components\ble\device_manager\config;..\..\..\..\..\..\components\ble\device_manager;..\..\..\..\..\..\components\ble\ble_db_discovery;..\..\..\..\..\..\components\libraries\trace;..\..\..\..\..\..\components\drivers_nrf\pstorage;..\..\..\..\..\..\components\drivers_nrf\pstorage\config</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -6340,14 +6550,19 @@
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\hal\nrf_adc.c</FilePath>
             </File>
             <File>
+              <FileName>nrf_assert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+            </File>
+            <File>
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
             <File>
-              <FileName>ble_srv_common.c</FileName>
+              <FileName>pstorage.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\drivers_nrf\pstorage\pstorage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -6363,11 +6578,6 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\RTT\SEGGER_RTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_advdata.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
             </File>
             <File>
               <FileName>softdevice_handler.c</FileName>
@@ -6415,9 +6625,9 @@
               <FilePath>..\..\..\..\..\..\components\libraries\util\app_util_platform.c</FilePath>
             </File>
             <File>
-              <FileName>nrf_assert.c</FileName>
+              <FileName>app_trace.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\libraries\trace\app_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -6428,6 +6638,36 @@
               <FileName>ble_dis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_dis\ble_dis.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_advdata.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_cts_c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_cts_c\ble_cts_c.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>device_manager_peripheral.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\device_manager\device_manager_peripheral.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_db_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_db_discovery\ble_db_discovery.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_temperature.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -7223,14 +7463,19 @@
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\hal\nrf_adc.c</FilePath>
             </File>
             <File>
+              <FileName>nrf_assert.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+            </File>
+            <File>
               <FileName>nrf_drv_wdt.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\drivers_nrf\wdt\nrf_drv_wdt.c</FilePath>
             </File>
             <File>
-              <FileName>ble_srv_common.c</FileName>
+              <FileName>pstorage.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\drivers_nrf\pstorage\pstorage.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -7246,11 +7491,6 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\RTT\SEGGER_RTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>ble_advdata.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
             </File>
             <File>
               <FileName>softdevice_handler.c</FileName>
@@ -7298,9 +7538,9 @@
               <FilePath>..\..\..\..\..\..\components\libraries\util\app_util_platform.c</FilePath>
             </File>
             <File>
-              <FileName>nrf_assert.c</FileName>
+              <FileName>app_trace.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\components\libraries\util\nrf_assert.c</FilePath>
+              <FilePath>..\..\..\..\..\..\components\libraries\trace\app_trace.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -7311,6 +7551,36 @@
               <FileName>ble_dis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_dis\ble_dis.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_advdata.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_advdata.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_cts_c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_services\ble_cts_c\ble_cts_c.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_srv_common.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\common\ble_srv_common.c</FilePath>
+            </File>
+            <File>
+              <FileName>device_manager_peripheral.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\device_manager\device_manager_peripheral.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_db_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\..\components\ble\ble_db_discovery\ble_db_discovery.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_temperature.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
           </Files>
         </Group>

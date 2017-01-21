@@ -36,8 +36,8 @@
  *  qualification listings, this section of source code must not be modified.
  */
 
-#ifndef BLE_SENSOR_H__
-#define BLE_SENSOR_H__
+#ifndef BLE_LIGHT_H__
+#define BLE_LIGHT_H__
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -128,6 +128,6 @@ void ble_bas_on_ble_evt(ble_bas_t * p_bas, ble_evt_t * p_ble_evt);
  */
 uint32_t ble_bas_battery_level_update(ble_bas_t * p_bas, uint8_t battery_level);
 
-#endif // BLE_SENSOR_H__
+#endif // BLE_LIGHT_H__
 
 /** @} */

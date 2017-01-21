@@ -70,7 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#include "ble_bas.h"
 #include "ble_dis.h"
 //#include "ble_srv_common.h"
-
+#include "ble_temperature.h"
 
 #define DEVICE_NAME                  "LIGHT_SWITCH_BLE_MESH" /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME            "TEMCOCONTROLS"     	/**< Manufacturer. Will be passed to Device Information Service. */
@@ -112,8 +112,8 @@ static app_timer_id_t           m_temp_mes_timer_id;               /**< temperat
 static app_timer_id_t           m_watchdog_timer_id;               /**< watchdog timer. */
 static app_timer_id_t           m_hang_on_timer_id;                /**< hang on sound & pir timer. */
 
-
-static volatile bool ready_flag;            // A flag indicating PWM status.
+static ble_temp_t               m_temp;     /**< Structure used to identify the battery service. */
+static volatile bool ready_flag;            /* A flag indicating PWM status. */
 volatile int32_t adc_sample[4];
 volatile int32_t PIR_Buffer[2];
 volatile int32_t sound_sample = 0;
@@ -606,7 +606,7 @@ static void sound_event_handler(void * p_context)
 	
 	sound_sample = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_2);	
 	
-	if(sound_sample > 250) 
+	if(sound_sample > 400) 
 	{
 		update_led_event(SOUND_EVENT);
 		motion_sound_event_set(SOUND_EVENT);
@@ -637,7 +637,9 @@ static void light_event_handler(void * p_context)
 	
 	light_sample = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_3);	
 			
-		
+//#ifdef DEBUG_LOG_RTT
+//	SEGGER_RTT_printf(0, "LUX:%2d\r\n",(int16_t)light_sample);															
+//#endif		
 			
 }
 /**@brief Function for handling the temperature event timer timeout.
@@ -649,13 +651,23 @@ static void light_event_handler(void * p_context)
  */
 static void temperature_event_handler(void * p_context)
 {
+	uint32_t err_code;
 	
 	UNUSED_PARAMETER(p_context);				
 	temp_sample = update_temperature((int16_t)nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_5), true);
 	
-//#ifdef DEBUG_LOG_RTT
-//	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp_sample);															
-//#endif		
+	err_code = ble_temp_Temperature_level_update(&m_temp, (uint8_t)(temp_sample / 10));
+    if ((err_code != NRF_SUCCESS) &&
+        (err_code != NRF_ERROR_INVALID_STATE) &&
+        (err_code != BLE_ERROR_NO_TX_BUFFERS) &&
+        (err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+        )
+    {
+        APP_ERROR_HANDLER(err_code);
+    }	
+#ifdef DEBUG_LOG_RTT
+	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp_sample);															
+#endif		
 			
 }
 
@@ -685,7 +697,7 @@ static void error_loop(void)
 void sd_assert_handler(uint32_t pc, uint16_t line_num, const uint8_t* p_file_name)
 {
 #ifdef DEBUG_LOG_RTT
-		SEGGER_RTT_printf(0, "sd_assert_handler.\r\n  ");
+		SEGGER_RTT_printf(0, "sd_assert,pc:%2d,line:%2d,file:%s.\r\n",(uint16_t)pc,(uint16_t)line_num,p_file_name);
 #endif    
 	error_loop();
 }
@@ -701,7 +713,8 @@ void sd_assert_handler(uint32_t pc, uint16_t line_num, const uint8_t* p_file_nam
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name)
 {
 #ifdef DEBUG_LOG_RTT
-		SEGGER_RTT_printf(0, "app_error_handler.\r\n  ");
+	SEGGER_RTT_printf(0, "app_error,CODE:%2d,line:%2d,file:%s\r\n",(uint16_t)error_code,
+																	(uint16_t)line_num, p_file_name);
 #endif    
 	error_loop();
 }
@@ -718,7 +731,7 @@ void HardFault_Handler(void)
 void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 {
 #ifdef DEBUG_LOG_RTT
-		SEGGER_RTT_printf(0, "app_error_fault_handler.\r\n  ");
+	SEGGER_RTT_printf(0, "app_error,ID:%2d,PC:%2d,info:%2d.\r\n",id,pc,info);
 #endif
     error_loop();
 }
@@ -849,11 +862,10 @@ void bsp_event_handler(bsp_event_t event)
 			APP_ERROR_CHECK(err_code);	
 			#else
 			relay_off();
-			#endif
-			
+			#endif			
 
 			#ifdef DEBUG_LOG_RTT
-			SEGGER_RTT_printf(0, "relay_off.\r\n");	
+			SEGGER_RTT_printf(0, "SWITCH,OFF.\r\n");	
 			#endif			
 		}else
 		{
@@ -872,7 +884,7 @@ void bsp_event_handler(bsp_event_t event)
 			APP_ERROR_CHECK(err_code);
 			
 			#ifdef DEBUG_LOG_RTT
-			SEGGER_RTT_printf(0, "relay_on.\r\n");
+			SEGGER_RTT_printf(0, "SWITCH,ON.\r\n");
 			#endif
 		}		
         break;
@@ -1018,27 +1030,27 @@ void bsp_wdt_init(void)
 static void services_init(void)
 {
     uint32_t       err_code;
-//    ble_bas_init_t bas_init;
+    ble_temp_init_t temp_init;
 	ble_dis_init_t dis_init;
 
 
-//    // Initialize Battery Service.
-//    memset(&bas_init, 0, sizeof(bas_init));
+    /* Initialize Temperature Service.*/
+    memset(&temp_init, 0, sizeof(temp_init));
 
-//    // Here the sec level for the Battery Service can be changed/increased.
-//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.cccd_write_perm);
-//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_char_attr_md.read_perm);
-//    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&bas_init.battery_level_char_attr_md.write_perm);
+    /* Here the sec level for the Temperature Service can be changed/increased. */
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&temp_init.temperature_level_char_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&temp_init.temperature_level_char_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&temp_init.temperature_level_char_attr_md.write_perm);
 
-//    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&bas_init.battery_level_report_read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&temp_init.temperature_level_report_read_perm);
 
-//    bas_init.evt_handler          = NULL;
-//    bas_init.support_notification = true;
-//    bas_init.p_report_ref         = NULL;
-//    bas_init.initial_batt_level   = 100;
+    temp_init.evt_handler          = NULL;
+    temp_init.support_notification = true;
+    temp_init.p_report_ref         = NULL;
+    temp_init.initial_temp_level   = 100;
 
-//    err_code = ble_bas_init(&m_bas, &bas_init);
-//    APP_ERROR_CHECK(err_code);	
+    err_code = ble_temp_init(&m_temp, &temp_init);
+    APP_ERROR_CHECK(err_code);	
 	
 	
     // Initialize Device Information Service. 
@@ -1078,7 +1090,7 @@ int main(void)
 	
 #ifdef DEBUG_LOG_RTT	// RTT debug interface.
 	SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-	SEGGER_RTT_printf(0, "SEGGER_RTT init ok.\r\n");
+	SEGGER_RTT_printf(0, "RESET_REAS:%2x\r\n",(uint16_t)NRF_POWER->RESETREAS);
 #endif	
 	
     /* Enable Softdevice (including sd_ble before framework */
@@ -1131,7 +1143,7 @@ int main(void)
     app_button_enable();
 //	app_pwm_enable(&PWM1);
 	application_timers_start();	
-	motion_sound_event_set(HEARTBEAT_EVENT);
+//	motion_sound_event_set(HEARTBEAT_EVENT);
 	
     rbc_mesh_event_t evt;
     while (true)

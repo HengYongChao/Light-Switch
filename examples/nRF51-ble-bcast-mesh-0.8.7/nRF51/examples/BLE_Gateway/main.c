@@ -632,14 +632,18 @@ static void sound_event_handler(void * p_context)
  */
 static void light_event_handler(void * p_context)
 {
-	
+	uint32_t l1;
 	UNUSED_PARAMETER(p_context);	
 	
 	light_sample = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_3);	
-			
-//#ifdef DEBUG_LOG_RTT
-//	SEGGER_RTT_printf(0, "LUX:%2d\r\n",(int16_t)light_sample);															
-//#endif		
+	l1 = (uint32_t)light_sample;
+	l1 *= 527;
+	l1 /= 2000;		/* k = 1891 */
+				
+#ifdef DEBUG_LOG_RTT
+	SEGGER_RTT_printf(0, "adc:%2d  ",(uint16_t)light_sample);	
+	SEGGER_RTT_printf(0, "LUX:%2d\r\n",(uint16_t)l1);															
+#endif		
 			
 }
 /**@brief Function for handling the temperature event timer timeout.
@@ -665,9 +669,9 @@ static void temperature_event_handler(void * p_context)
     {
         APP_ERROR_HANDLER(err_code);
     }	
-#ifdef DEBUG_LOG_RTT
-	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp_sample);															
-#endif		
+//#ifdef DEBUG_LOG_RTT
+//	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp_sample);															
+//#endif		
 			
 }
 
@@ -731,7 +735,7 @@ void HardFault_Handler(void)
 void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 {
 #ifdef DEBUG_LOG_RTT
-	SEGGER_RTT_printf(0, "app_error,ID:%2d,PC:%2d,info:%2d.\r\n",id,pc,info);
+	SEGGER_RTT_printf(0, "app_error_fault,ID:%2d,PC:%2d,info:%2d.\r\n",id,pc,info);
 #endif
     error_loop();
 }

@@ -71,19 +71,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ble_dis.h"
 //#include "ble_srv_common.h"
 #include "ble_temperature.h"
+#include "ble_light.h"
 
 #define DEVICE_NAME                  "LIGHT_SWITCH_BLE_MESH" /**< Name of device. Will be included in the advertising data. */
-#define MANUFACTURER_NAME            "TEMCOCONTROLS"     	/**< Manufacturer. Will be passed to Device Information Service. */
-#define DEVICE_HARDWARE_VERSION		 "v3B"					/* Device hardware version */
-#define DEVICE_FIRMWARE_VERSION		 "v3.26.0"				/* Device firmware version */
-#define DEVICE_SERIAL_NUMBER		 "0123-4567-89AB"		/* device serial number */
+#define MANUFACTURER_NAME            "TEMCOCONTROLS"     	 /**< Manufacturer. Will be passed to Device Information Service. */
+#define DEVICE_HARDWARE_VERSION		 "v3B"					 /* Device hardware version */
+#define DEVICE_FIRMWARE_VERSION		 "v3.26.0"				 /* Device firmware version */
+#define DEVICE_SERIAL_NUMBER		 "0123-4567-89AB"		 /* device serial number */
 
 #define MESH_ACCESS_ADDR        	(RBC_MESH_ACCESS_ADDRESS_BLE_ADV)   /**< Access address for the mesh to operate on. */
 #define MESH_INTERVAL_MIN_MS    	(100)                               /**< Mesh minimum advertisement interval in milliseconds. */
 #define MESH_CHANNEL            	(38)                                /**< BLE channel to operate on. Single channel only. */
-#define APP_TIMER_PRESCALER        	0                                /**< Value of the RTC1 PRESCALER register. */
+#define APP_TIMER_PRESCALER        	0                                   /**< Value of the RTC1 PRESCALER register. */
 #define APP_TIMER_MAX_TIMERS       	(20 + BSP_APP_TIMERS_NUMBER)      	/**< Maximum number of simultaneously created timers. */
-#define APP_TIMER_OP_QUEUE_SIZE    	4                                /**< Size of timer operation queues. */
+#define APP_TIMER_OP_QUEUE_SIZE    	4                                   /**< Size of timer operation queues. */
 
 #define HEARTBEAT_INTERVAL      APP_TIMER_TICKS(130, APP_TIMER_PRESCALER) 	/**< led1 heartbeat interval (ticks). */
 #define RELAY_INTERVAL      	APP_TIMER_TICKS(90, APP_TIMER_PRESCALER) 	/**< RELAY interval (ticks). */
@@ -113,6 +114,7 @@ static app_timer_id_t           m_watchdog_timer_id;               /**< watchdog
 static app_timer_id_t           m_hang_on_timer_id;                /**< hang on sound & pir timer. */
 
 static ble_temp_t               m_temp;     /**< Structure used to identify the battery service. */
+static ble_light_t              m_light;
 static volatile bool ready_flag;            /* A flag indicating PWM status. */
 volatile int32_t adc_sample[4];
 volatile int32_t PIR_Buffer[2];
@@ -134,6 +136,16 @@ uint16_t const ntc_table_10K[20] =
 {
 	25,	39,	61,	83,	102, 113, 112, 101,	85,
 	67,	51,	38,	28,	21,	15,	11,	8, 6, 5, 19
+};
+
+uint16_t const lightsensor_table_tps851[27] =	
+{
+	  1,  2,  2,  4,  6,  7,   9, 12, 14, 16,
+	 18, 20, 37, 63, 80, 94, 117,142,154,171,
+	196,313,455,597,711,853, 1024
+//	0x0001, 0x0002, 0x0002, 0x0004, 0x0006, 0x0007, 0x0009, 0x000c, 0x000e, 0x0010,
+//	0x0012,	0x0014,	0x0025,	0x003f,	0x0050,	0x005e,	0x0075,	0x008e, 0x009a, 0x00ab, 
+//	0x00c4, 0x0139, 0x01c7, 0x0255, 0x02c7, 0x0355, 0x0400
 };
 
 
@@ -633,13 +645,24 @@ static void sound_event_handler(void * p_context)
 static void light_event_handler(void * p_context)
 {
 	uint32_t l1;
+	uint32_t err_code;
 	UNUSED_PARAMETER(p_context);	
 	
 	light_sample = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_3);	
 	l1 = (uint32_t)light_sample;
 	l1 *= 527;
 	l1 /= 2000;		/* k = 1891 */
-				
+	
+	err_code = ble_light_sensor_level_update(&m_light,(uint8_t)l1);
+    if ((err_code != NRF_SUCCESS) &&
+        (err_code != NRF_ERROR_INVALID_STATE) &&
+        (err_code != BLE_ERROR_NO_TX_BUFFERS) &&
+        (err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+        )
+    {
+        APP_ERROR_HANDLER(err_code);
+    }	
+	
 #ifdef DEBUG_LOG_RTT
 	SEGGER_RTT_printf(0, "adc:%2d  ",(uint16_t)light_sample);	
 	SEGGER_RTT_printf(0, "LUX:%2d\r\n",(uint16_t)l1);															
@@ -1035,9 +1058,29 @@ static void services_init(void)
 {
     uint32_t       err_code;
     ble_temp_init_t temp_init;
+	ble_light_init_t light_init;
 	ble_dis_init_t dis_init;
 
 
+    /* Initialize Light Sensor Service.*/
+    memset(&light_init, 0, sizeof(light_init));
+
+    /* Here the sec level for the light sensor Service can be changed/increased. */
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&light_init.light_level_char_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&light_init.light_level_char_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&light_init.light_level_char_attr_md.write_perm);
+
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&light_init.light_level_report_read_perm);
+
+    light_init.evt_handler          = NULL;
+    light_init.support_notification = true;
+    light_init.p_report_ref         = NULL;
+    light_init.initial_light_level   = 100;
+
+    err_code = ble_light_init(&m_light, &light_init);
+    APP_ERROR_CHECK(err_code);		
+	
+	
     /* Initialize Temperature Service.*/
     memset(&temp_init, 0, sizeof(temp_init));
 

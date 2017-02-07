@@ -866,6 +866,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
+            <File>
+              <FileName>ble_light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_light.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
@@ -1631,6 +1636,11 @@
               <FileName>ble_temperature.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_light.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2495,6 +2505,11 @@
               <FileName>ble_temperature.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_light.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3409,6 +3424,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
+            <File>
+              <FileName>ble_light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_light.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
@@ -4272,6 +4292,11 @@
               <FileName>ble_temperature.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_light.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -5137,6 +5162,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
+            <File>
+              <FileName>ble_light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_light.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
@@ -5903,6 +5933,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
             </File>
+            <File>
+              <FileName>ble_light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_light.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
@@ -6668,6 +6703,11 @@
               <FileName>ble_temperature.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_light.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -7581,6 +7621,11 @@
               <FileName>ble_temperature.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\SDK\ble_service\ble_temperature.c</FilePath>
+            </File>
+            <File>
+              <FileName>ble_light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\SDK\ble_service\ble_light.c</FilePath>
             </File>
           </Files>
         </Group>

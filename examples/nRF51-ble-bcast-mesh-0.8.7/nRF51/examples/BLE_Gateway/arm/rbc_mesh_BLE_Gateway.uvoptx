@@ -8096,7 +8096,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>TM?TK??靤</Name>
+          <Name>,</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -8130,7 +8130,7 @@
           <Type>0</Type>
           <LineNumber>205</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>136972</Address>
+          <Address>135664</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -8146,7 +8146,7 @@
           <Type>0</Type>
           <LineNumber>275</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>107940</Address>
+          <Address>106148</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -10245,6 +10245,18 @@
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\SDK\ble_service\ble_temperature.c</PathWithFileName>
       <FilenameWithoutPath>ble_temperature.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>6</GroupNumber>
+      <FileNumber>57</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\..\SDK\ble_service\ble_light.c</PathWithFileName>
+      <FilenameWithoutPath>ble_light.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

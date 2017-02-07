@@ -22,7 +22,7 @@
 #include "app_util.h"
 
 
-#define INVALID_Temperature_LEVEL 255
+#define INVALID_TEMPERATURE_LEVEL 255
 
 
 /**@brief Function for handling the Connect event.
@@ -228,7 +228,7 @@ uint32_t ble_temp_init(ble_temp_t * p_temp, const ble_temp_init_t * p_temp_init)
     p_temp->evt_handler               = p_temp_init->evt_handler;
     p_temp->conn_handle               = BLE_CONN_HANDLE_INVALID;
     p_temp->is_notification_supported = p_temp_init->support_notification;
-    p_temp->temperature_level_last    = INVALID_Temperature_LEVEL;
+    p_temp->temperature_level_last    = INVALID_TEMPERATURE_LEVEL;
 
     // Add service
     BLE_UUID_BLE_ASSIGN(ble_uuid, BLE_UUID_TEMPERATURE_SERVICE);
@@ -253,7 +253,7 @@ uint32_t ble_temp_Temperature_level_update(ble_temp_t * p_temp, uint8_t temperat
 	
     if (temperature_level != p_temp->temperature_level_last)
     {
-//        temperature[0] = (uint8_t)(temperature_level >> 8);
+//      temperature[0] = (uint8_t)(temperature_level >> 8);
 //		temperature[1] = (uint8_t)temperature_level ;
 		
 		// Initialize value struct.

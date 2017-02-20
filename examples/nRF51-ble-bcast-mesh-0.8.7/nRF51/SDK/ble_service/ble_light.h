@@ -69,7 +69,7 @@ typedef struct
     ble_light_evt_handler_t       evt_handler;                    /**< Event handler to be called for handling events in the Light Service. */
     bool                          support_notification;           /**< TRUE if notification of Light Level measurement is supported. */
     ble_srv_report_ref_t *        p_report_ref;                   /**< If not NULL, a Report Reference descriptor with the specified value will be added to the Light Level characteristic */
-    uint8_t                       initial_light_level;            /**< Initial light level */
+    uint16_t                       initial_light_level;            /**< Initial light level */
     ble_srv_cccd_security_mode_t  light_level_char_attr_md;       /**< Initial security level for light characteristics attribute */
     ble_gap_conn_sec_mode_t       light_level_report_read_perm;   /**< Initial security level for light report read attribute */
 } ble_light_init_t;
@@ -81,7 +81,7 @@ struct ble_light_s
     uint16_t                      service_handle;                 /**< Handle of Light Service (as provided by the BLE stack). */
     ble_gatts_char_handles_t      light_level_handles;            /**< Handles related to the Light Level characteristic. */
     uint16_t                      report_ref_handle;              /**< Handle of the Report Reference descriptor. */
-    uint8_t                       light_level_last;               /**< Last Light Level measurement passed to the Light Service. */
+    uint16_t                      light_level_last;               /**< Last Light Level measurement passed to the Light Service. */
     uint16_t                      conn_handle;                    /**< Handle of the current connection (as provided by the BLE stack, is BLE_CONN_HANDLE_INVALID if not in a connection). */
     bool                          is_notification_supported;      /**< TRUE if notification of Light Level is supported. */
 };
@@ -125,7 +125,7 @@ void ble_light_on_ble_evt(ble_light_t * p_light, ble_evt_t * p_ble_evt);
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t ble_light_sensor_level_update(ble_light_t * p_light, uint8_t light_level);
+uint32_t ble_light_sensor_level_update(ble_light_t * p_light, uint16_t light_level);
 
 #endif // BLE_LIGHT_H__
 

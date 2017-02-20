@@ -169,9 +169,9 @@ static uint32_t light_level_char_add(ble_light_t * p_light, const ble_light_init
 
     attr_char_value.p_uuid    = &ble_uuid;
     attr_char_value.p_attr_md = &attr_md;
-    attr_char_value.init_len  = sizeof(uint8_t);
+    attr_char_value.init_len  = sizeof(uint16_t);
     attr_char_value.init_offs = 0;
-    attr_char_value.max_len   = sizeof(uint8_t);
+    attr_char_value.max_len   = sizeof(uint16_t);
     attr_char_value.p_value   = &initial_light_level;
 
     err_code = sd_ble_gatts_characteristic_add(p_light->service_handle, &char_md,
@@ -250,19 +250,23 @@ uint32_t ble_light_init(ble_light_t * p_light, const ble_light_init_t * p_light_
 }
 
 
-uint32_t ble_light_sensor_level_update(ble_light_t * p_light, uint8_t light_level)
+uint32_t ble_light_sensor_level_update(ble_light_t * p_light, uint16_t light_level)
 {
     uint32_t err_code = NRF_SUCCESS;
     ble_gatts_value_t gatts_value;
+	uint8_t light_value[sizeof(uint16_t)];
 
     if (light_level != p_light->light_level_last)
     {
         // Initialize value struct.
+		light_value[0] = (uint8_t)(light_level >> 8);
+		light_value[1] = (uint8_t)light_level ;
+		
         memset(&gatts_value, 0, sizeof(gatts_value));
 
-        gatts_value.len     = sizeof(uint8_t);
+        gatts_value.len     = sizeof(uint16_t);
         gatts_value.offset  = 0;
-        gatts_value.p_value = &light_level;
+        gatts_value.p_value = light_value;
 
         // Save new light value.
         p_light->light_level_last = light_level;

@@ -72,7 +72,7 @@ typedef struct
     ble_temp_evt_handler_t        evt_handler;                          /**< Event handler to be called for handling events in the Temperature Service. */
     bool                          support_notification;                 /**< TRUE if notification of Temperature Level measurement is supported. */
     ble_srv_report_ref_t *        p_report_ref;                         /**< If not NULL, a Report Reference descriptor with the specified value will be added to the Temperature Level characteristic */
-    uint8_t                       initial_temp_level;                   /**< Initial Temperature level */
+    uint16_t                      initial_temp_level;                   /**< Initial Temperature level */
     ble_srv_cccd_security_mode_t  temperature_level_char_attr_md;       /**< Initial security level for Temperature characteristics attribute */
     ble_gap_conn_sec_mode_t       temperature_level_report_read_perm;   /**< Initial security level for Temperature report read attribute */
 } ble_temp_init_t;
@@ -84,7 +84,7 @@ struct ble_temp_s
     uint16_t                      service_handle;                       /**< Handle of Temperature Service (as provided by the BLE stack). */
     ble_gatts_char_handles_t      temperature_level_handles;            /**< Handles related to the Temperature Level characteristic. */
     uint16_t                      report_ref_handle;                    /**< Handle of the Report Reference descriptor. */
-    uint8_t                      temperature_level_last;               /**< Last Temperature Level measurement passed to the Temperature Service. */
+    uint16_t                      temperature_level_last;               /**< Last Temperature Level measurement passed to the Temperature Service. */
     uint16_t                      conn_handle;                          /**< Handle of the current connection (as provided by the BLE stack, is BLE_CONN_HANDLE_INVALID if not in a connection). */
     bool                          is_notification_supported;            /**< TRUE if notification of Temperature Level is supported. */
 };
@@ -128,7 +128,7 @@ void ble_temp_on_ble_evt(ble_temp_t * p_temp, ble_evt_t * p_ble_evt);
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t ble_temp_Temperature_level_update(ble_temp_t * p_temp, uint8_t Temperature_level);
+uint32_t ble_temp_Temperature_level_update(ble_temp_t * p_temp, uint16_t Temperature_level);
 
 #endif // BLE_TEMPERATURE_H__
 

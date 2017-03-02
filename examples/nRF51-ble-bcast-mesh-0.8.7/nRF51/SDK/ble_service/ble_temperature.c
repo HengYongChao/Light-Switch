@@ -22,8 +22,8 @@
 #include "app_util.h"
 
 
-#define INVALID_TEMPERATURE_LEVEL 255
-
+#define INVALID_TEMPERATURE_LEVEL 	255
+#define TEMPERATURE_VALUE_LEN		2
 
 /**@brief Function for handling the Connect event.
  *
@@ -120,7 +120,7 @@ static uint32_t temperature_level_char_add(ble_temp_t * p_temp, const ble_temp_i
     ble_gatts_attr_t    attr_char_value;
     ble_uuid_t          ble_uuid;
     ble_gatts_attr_md_t attr_md;
-    uint8_t            initial_Temperature_level;
+    uint8_t             initial_Temperature_level;
     uint8_t             encoded_report_ref[BLE_SRV_ENCODED_REPORT_REF_LEN];
     uint8_t             init_len;
 
@@ -163,9 +163,9 @@ static uint32_t temperature_level_char_add(ble_temp_t * p_temp, const ble_temp_i
 
     attr_char_value.p_uuid    = &ble_uuid;
     attr_char_value.p_attr_md = &attr_md;
-    attr_char_value.init_len  = sizeof(uint8_t);
+    attr_char_value.init_len  = sizeof(uint16_t);
     attr_char_value.init_offs = 0;
-    attr_char_value.max_len   = sizeof(uint8_t);
+    attr_char_value.max_len   = sizeof(uint16_t);
     attr_char_value.p_value   = &initial_Temperature_level;
 
     err_code = sd_ble_gatts_characteristic_add(p_temp->service_handle, &char_md,
@@ -244,24 +244,24 @@ uint32_t ble_temp_init(ble_temp_t * p_temp, const ble_temp_init_t * p_temp_init)
 }
 
 
-uint32_t ble_temp_Temperature_level_update(ble_temp_t * p_temp, uint8_t temperature_level)
+uint32_t ble_temp_Temperature_level_update(ble_temp_t * p_temp, uint16_t temperature_level)
 {
     uint32_t err_code = NRF_SUCCESS;
     ble_gatts_value_t gatts_value;
-//	uint8_t temperature[2];
-	
+	uint8_t temperature[TEMPERATURE_VALUE_LEN];
+		
 	
     if (temperature_level != p_temp->temperature_level_last)
     {
-//      temperature[0] = (uint8_t)(temperature_level >> 8);
-//		temperature[1] = (uint8_t)temperature_level ;
+		temperature[0] = (uint8_t)(temperature_level >> 8);
+		temperature[1] = (uint8_t)temperature_level ;
 		
 		// Initialize value struct.
         memset(&gatts_value, 0, sizeof(gatts_value));
 
-        gatts_value.len     = sizeof(uint8_t);
+        gatts_value.len     = TEMPERATURE_VALUE_LEN;
         gatts_value.offset  = 0;
-        gatts_value.p_value = &temperature_level;
+        gatts_value.p_value = temperature;
 
         // Save new Temperature value.
         p_temp->temperature_level_last = temperature_level;

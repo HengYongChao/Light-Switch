@@ -649,7 +649,7 @@ static void light_event_handler(void * p_context)
 	l1 *= 527;
 	l1 /= 2000;		/* k = 1891 */
 	
-	err_code = ble_light_sensor_level_update(&m_light,(uint8_t)l1);
+	err_code = ble_light_sensor_level_update(&m_light,(uint16_t)l1);
     if ((err_code != NRF_SUCCESS) &&
         (err_code != NRF_ERROR_INVALID_STATE) &&
         (err_code != BLE_ERROR_NO_TX_BUFFERS) &&
@@ -679,7 +679,7 @@ static void temperature_event_handler(void * p_context)
 	UNUSED_PARAMETER(p_context);				
 	temp_sample = update_temperature((int16_t)nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_5), true);
 	
-	err_code = ble_temp_Temperature_level_update(&m_temp, (uint8_t)(temp_sample / 10));
+	err_code = ble_temp_Temperature_level_update(&m_temp, (uint16_t)temp_sample);
     if ((err_code != NRF_SUCCESS) &&
         (err_code != NRF_ERROR_INVALID_STATE) &&
         (err_code != BLE_ERROR_NO_TX_BUFFERS) &&
@@ -688,9 +688,9 @@ static void temperature_event_handler(void * p_context)
     {
         APP_ERROR_HANDLER(err_code);
     }	
-//#ifdef DEBUG_LOG_RTT
-//	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp_sample);															
-//#endif		
+#ifdef DEBUG_LOG_RTT
+	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp_sample);															
+#endif		
 			
 }
 

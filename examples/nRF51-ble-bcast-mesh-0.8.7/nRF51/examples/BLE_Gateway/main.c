@@ -97,7 +97,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SOUND_MES_INTERVAL    	APP_TIMER_TICKS(12, APP_TIMER_PRESCALER) 	/**< sound measure interval (ticks). */
 #define LIGHT_MES_INTERVAL    	APP_TIMER_TICKS(540, APP_TIMER_PRESCALER) 	/**< light sonsor measure interval (ticks). */
 #define TEMP_MES_INTERVAL    	APP_TIMER_TICKS(620, APP_TIMER_PRESCALER) 	/**< temperature measure interval (ticks). */
-#define WATCHDOG_INTERVAL    	APP_TIMER_TICKS(1005, APP_TIMER_PRESCALER) 	/**< watchdog interval (ticks). */
+#define WATCHDOG_INTERVAL    	APP_TIMER_TICKS(505, APP_TIMER_PRESCALER) 	/**< watchdog interval (ticks). */
 #define KEY_PERIOD_HANG_SENSOR	APP_TIMER_TICKS(3009, APP_TIMER_PRESCALER)  /**< detect key hang motion and sound interval (ticks). */
 
 static app_timer_id_t           m_heartbeat_timer_id;         /**< heartbeat timer. */
@@ -261,7 +261,14 @@ int16_t update_temperature(int16_t adc, _Bool c)
 void wdt_event_handler(void)
 {
     LEDS_OFF(LEDS_MASK);
-    
+ 
+#if 1	
+	for(uint8_t i= 0; i <= 20; i++)
+	{
+		nrf_delay_ms(50);
+		nrf_gpio_pin_toggle(BSP_LED_0);
+	}	
+#endif	
     //NOTE: The max amount of time we can spend in WDT interrupt is two cycles of 32768[Hz] clock - after that, reset occurs
 }
 /**
@@ -301,7 +308,14 @@ void pwm_ready_callback(uint32_t pwm_id)    // PWM callback function
 #endif
 void leds_on_for_while(void)
 {
-	nrf_delay_ms(1500);
+	uint8_t i;
+	
+	for( i= 0; i <= 20; i++)
+	{
+		nrf_delay_ms(50);
+		nrf_gpio_pin_toggle(BSP_LED_1);
+	}
+		
 	nrf_gpio_pin_clear(BSP_LED_0);
 	nrf_gpio_pin_set(BSP_LED_1);
 	nrf_gpio_pin_clear(BSP_LED_2);
@@ -659,10 +673,10 @@ static void light_event_handler(void * p_context)
         APP_ERROR_HANDLER(err_code);
     }	
 	
-//#ifdef DEBUG_LOG_RTT
-//	SEGGER_RTT_printf(0, "adc:%2d  ",(uint16_t)light_sample);	
-//	SEGGER_RTT_printf(0, "LUX:%2d\r\n",(uint16_t)l1);															
-//#endif		
+#ifdef DEBUG_LOG_RTT
+	SEGGER_RTT_printf(0, "adc:%2d  ",(uint16_t)light_sample);	
+	SEGGER_RTT_printf(0, "LUX:%2d\r\n",(uint16_t)l1);															
+#endif		
 			
 }
 /**@brief Function for handling the temperature event timer timeout.
@@ -688,9 +702,9 @@ static void temperature_event_handler(void * p_context)
     {
         APP_ERROR_HANDLER(err_code);
     }	
-#ifdef DEBUG_LOG_RTT
-	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp_sample);															
-#endif		
+//#ifdef DEBUG_LOG_RTT
+//	SEGGER_RTT_printf(0, "temp:%2d\r\n",(int16_t)temp_sample);															
+//#endif		
 			
 }
 
@@ -738,7 +752,17 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
 #ifdef DEBUG_LOG_RTT
 	SEGGER_RTT_printf(0, "[app_error_handler],error_code: %d, line_num: %d, file_name:%s\r\n",(uint16_t)error_code,
 																	(uint16_t)line_num, p_file_name);
-#endif    
+#endif  
+#if 1	
+	while(true)
+	{
+		for(uint8_t i=0;i<=20;i++)
+		{
+			nrf_delay_ms(50);
+			nrf_gpio_pin_toggle(BSP_LED_2);			
+		}
+	};
+#endif	
 	error_loop();
 }
 
@@ -747,7 +771,8 @@ void HardFault_Handler(void)
 {
 #ifdef DEBUG_LOG_RTT
 		SEGGER_RTT_printf(0, "HardFault_Handler.\r\n  ");
-#endif    
+#endif   
+
 	error_loop();
 }
 
@@ -756,6 +781,16 @@ void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 #ifdef DEBUG_LOG_RTT
 	SEGGER_RTT_printf(0, "[app_error_fault],ID: %d,PC: %d,info: %d.\r\n",id,pc,info);
 #endif
+#if 1	
+	while(true)
+	{
+		for(uint8_t i=0;i<=50;i++)
+		{
+			nrf_delay_ms(300);
+			nrf_gpio_pin_toggle(BSP_LED_2);			
+		}
+	};
+#endif	
     error_loop();
 }
 /**
@@ -991,22 +1026,22 @@ static void application_timers_start(void)
     uint32_t err_code;
 
     // Start application timers.
-    err_code = app_timer_start(m_sound_mes_timer_id, SOUND_MES_INTERVAL, NULL);			//12ms
+    err_code = app_timer_start(m_sound_mes_timer_id, SOUND_MES_INTERVAL, NULL);	/* sound detect timer */
     APP_ERROR_CHECK(err_code);		
 	
-    err_code = app_timer_start(m_watchdog_timer_id, WATCHDOG_INTERVAL, NULL);			//1000ms
+    err_code = app_timer_start(m_watchdog_timer_id, WATCHDOG_INTERVAL, NULL);	/* watchdog feed */
     APP_ERROR_CHECK(err_code);
 	
-    err_code = app_timer_start(m_heartbeat_timer_id, HEARTBEAT_INTERVAL, NULL);			//100ms
+    err_code = app_timer_start(m_heartbeat_timer_id, HEARTBEAT_INTERVAL, NULL);	/* hearybeat timer */
     APP_ERROR_CHECK(err_code);
 		
-    err_code = app_timer_start(m_pir_mes_timer_id, PIR_MES_INTERVAL, NULL);				//200ms
+    err_code = app_timer_start(m_pir_mes_timer_id, PIR_MES_INTERVAL, NULL);		/* PIR detect timer */
     APP_ERROR_CHECK(err_code);		
 	
-    err_code = app_timer_start(m_light_mes_timer_id, LIGHT_MES_INTERVAL, NULL);			//500ms
+    err_code = app_timer_start(m_light_mes_timer_id, LIGHT_MES_INTERVAL, NULL); /* light sensor measurement */
     APP_ERROR_CHECK(err_code);	
 	
-    err_code = app_timer_start(m_temp_mes_timer_id, TEMP_MES_INTERVAL, NULL);			//600ms
+    err_code = app_timer_start(m_temp_mes_timer_id, TEMP_MES_INTERVAL, NULL);	/* temperature measurement */
     APP_ERROR_CHECK(err_code);
 	
 }
@@ -1049,7 +1084,11 @@ void bsp_wdt_init(void)
 	uint32_t err_code = NRF_SUCCESS;
 	
     //Configure WDT.
-	nrf_drv_wdt_config_t config = NRF_DRV_WDT_DEAFULT_CONFIG;
+	nrf_drv_wdt_config_t config;	
+	config.behaviour = NRF_WDT_BEHAVIOUR_PAUSE_SLEEP_HALT;
+	config.interrupt_priority = APP_IRQ_PRIORITY_HIGH;
+	config.reload_value = 2000;	
+	
     err_code = nrf_drv_wdt_init(&config, wdt_event_handler);
     APP_ERROR_CHECK(err_code);
     err_code = nrf_drv_wdt_channel_alloc(&m_channel_id);
@@ -1151,6 +1190,10 @@ int main(void)
 	
 	SEGGER_RTT_printf(0, "BUILD DATE:[%s %s].\r\n", __DATE__,__TIME__);
 	SEGGER_RTT_printf(0, "RESET_REASON:%2x\r\n",(uint16_t)NRF_POWER->RESETREAS);
+	
+	
+	
+	NRF_POWER->RESETREAS = 0xffffffff;
 #endif	
 	
     /* Enable Softdevice (including sd_ble before framework */
@@ -1179,6 +1222,7 @@ int main(void)
     uint32_t error_code = rbc_mesh_init(init_params);
     APP_ERROR_CHECK(error_code);
 
+	nrf_drv_wdt_channel_feed(m_channel_id);
     /* request values for both LEDs on the mesh */
     for (uint32_t i = 0; i < 2; ++i)
     {
@@ -1231,7 +1275,11 @@ int main(void)
             rbc_mesh_event_handler(&evt);
             rbc_mesh_event_release(&evt);						
         }						
-		sd_app_evt_wait();
+		//sd_app_evt_wait();
+		
+		nrf_drv_wdt_channel_feed(m_channel_id);
+		
+		
     }
 }
 

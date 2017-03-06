@@ -99,6 +99,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TEMP_MES_INTERVAL    	APP_TIMER_TICKS(620, APP_TIMER_PRESCALER) 	/**< temperature measure interval (ticks). */
 #define WATCHDOG_INTERVAL    	APP_TIMER_TICKS(505, APP_TIMER_PRESCALER) 	/**< watchdog interval (ticks). */
 #define KEY_PERIOD_HANG_SENSOR	APP_TIMER_TICKS(3009, APP_TIMER_PRESCALER)  /**< detect key hang motion and sound interval (ticks). */
+#define TRIGGER_INTERVAL		APP_TIMER_TICKS(60000, APP_TIMER_PRESCALER)  /**< TRIGGER THEN DELAY OFF(ticks). */
+
 
 static app_timer_id_t           m_heartbeat_timer_id;         /**< heartbeat timer. */
 #ifdef RELAY_LATCH
@@ -115,6 +117,7 @@ static app_timer_id_t           m_light_mes_timer_id;         /**< light sensor 
 static app_timer_id_t           m_temp_mes_timer_id;          /**< temperature measure timer. */
 static app_timer_id_t           m_watchdog_timer_id;          /**< watchdog timer. */
 static app_timer_id_t           m_hang_on_timer_id;           /**< hang on sound & pir timer. */
+static app_timer_id_t           m_trigger_timer_id; 
 
 static ble_temp_t               m_temp;     /**< Structure used to identify the battery service. */
 static ble_light_t              m_light;
@@ -122,18 +125,20 @@ static volatile bool ready_flag;            /* A flag indicating PWM status. */
 volatile int32_t adc_sample[4];
 volatile int32_t PIR_Buffer[2];
 volatile int32_t sound_sample = 0;
-volatile int32_t light_sample = 0;
+volatile uint32_t light_sample = 0;
 volatile int32_t temp_sample = 0;
 volatile int16_t temp_centigrade;
 volatile int16_t temp_fahrenheit; 
 volatile int16_t calibration_temperature = 0;
 
+static  uint8_t  pir_triggle_mode = 0;
 led_event_t			 led_event;
 pwm_enevt_t			 pwm_event;
 uint8_t 			 relay_status = 0;
 nrf_drv_wdt_channel_id m_channel_id;		//wdt
 void update_led_event(led_event_e led_event_type);
-
+void relay_on(void);
+void relay_off(void);
 
 uint16_t const ntc_table_10K[20] =	
 {
@@ -173,6 +178,20 @@ static nrf_clock_lf_cfg_t m_clock_cfg =
 #ifdef NRF52
 #define EXAMPLE_DFU_BANK_ADDR   (0x40000)
 #endif
+
+static void trigger_handler(void * p_context)
+{
+	if(pir_triggle_mode)
+	{
+		
+		pir_triggle_mode = 0;
+		relay_status = 0;
+		relay_off();	
+		nrf_gpio_pin_clear(LED_1);
+		nrf_gpio_pin_clear(LED_3);			
+	}
+	
+}
 
 
 void shut_pir_sound_timer(void)
@@ -592,7 +611,7 @@ static void pwm_update_handler(void * p_context)
  */
 static void pir_event_handler(void * p_context)
 {
-//	uint32_t err_code;
+	uint32_t err_code;
 	
 	UNUSED_PARAMETER(p_context);	
 	//PIR_Buffer[0] = PIR_Buffer[1];
@@ -607,9 +626,25 @@ static void pir_event_handler(void * p_context)
 #ifdef DEBUG_LOG_RTT
 		SEGGER_RTT_printf(0, "MOTION_EVENT %2d\r\n",(uint16_t)PIR_Buffer[1]);															
 #endif	
+		if((light_sample < 10)&&(!pir_triggle_mode)) /* NO Enter */
+		{
+			pir_triggle_mode = 1;
+						
+			relay_status = 1;
+			relay_on();			
+			
+			nrf_gpio_pin_set(LED_1);
+			nrf_gpio_pin_set(LED_3);			
+			
+			err_code = app_timer_start(m_trigger_timer_id, TRIGGER_INTERVAL, NULL);		/* TRIGGER OFF */
+			APP_ERROR_CHECK(err_code);			
 
-		shut_pir_sound_timer();
-		
+#ifdef DEBUG_LOG_RTT
+		SEGGER_RTT_printf(0, "enter trigger mode.\r\n");															
+#endif				
+			
+		}		
+		shut_pir_sound_timer();		
 	}
 		
 }
@@ -654,16 +689,15 @@ static void sound_event_handler(void * p_context)
  */
 static void light_event_handler(void * p_context)
 {
-	uint32_t l1;
+	//uint32_t l1;
 	uint32_t err_code;
 	UNUSED_PARAMETER(p_context);	
 	
-	light_sample = nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_3);	
-	l1 = (uint32_t)light_sample;
-	l1 *= 527;
-	l1 /= 2000;		/* k = 1891 */
-	
-	err_code = ble_light_sensor_level_update(&m_light,(uint16_t)l1);
+	light_sample = (uint32_t) nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_3);		
+	light_sample *= 527;
+	light_sample /= 2000;		/* k = 1891 */
+
+	err_code = ble_light_sensor_level_update(&m_light,(uint16_t)light_sample);
     if ((err_code != NRF_SUCCESS) &&
         (err_code != NRF_ERROR_INVALID_STATE) &&
         (err_code != BLE_ERROR_NO_TX_BUFFERS) &&
@@ -673,9 +707,8 @@ static void light_event_handler(void * p_context)
         APP_ERROR_HANDLER(err_code);
     }	
 	
-#ifdef DEBUG_LOG_RTT
-	SEGGER_RTT_printf(0, "adc:%2d  ",(uint16_t)light_sample);	
-	SEGGER_RTT_printf(0, "LUX:%2d\r\n",(uint16_t)l1);															
+#ifdef DEBUG_LOG_RTT	
+	SEGGER_RTT_printf(0, "LUX:%2d\r\n",(uint16_t)light_sample);															
 #endif		
 			
 }
@@ -753,7 +786,7 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
 	SEGGER_RTT_printf(0, "[app_error_handler],error_code: %d, line_num: %d, file_name:%s\r\n",(uint16_t)error_code,
 																	(uint16_t)line_num, p_file_name);
 #endif  
-#if 1	
+#if 0	
 	while(true)
 	{
 		for(uint8_t i=0;i<=20;i++)
@@ -763,7 +796,7 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
 		}
 	};
 #endif	
-	error_loop();
+	//error_loop();
 }
 
 /** @brief Hardware fault handler. */
@@ -781,7 +814,7 @@ void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 #ifdef DEBUG_LOG_RTT
 	SEGGER_RTT_printf(0, "[app_error_fault],ID: %d,PC: %d,info: %d.\r\n",id,pc,info);
 #endif
-#if 1	
+#if 0	
 	while(true)
 	{
 		for(uint8_t i=0;i<=50;i++)
@@ -791,7 +824,7 @@ void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 		}
 	};
 #endif	
-    error_loop();
+    //error_loop();
 }
 /**
 * @brief Softdevice event handler
@@ -904,7 +937,11 @@ void bsp_event_handler(bsp_event_t event)
     {
         case BSP_EVENT_KEY_0:
 		
-        case BSP_EVENT_KEY_1:		
+        case BSP_EVENT_KEY_1:	
+
+		pir_triggle_mode = 0;				/* if key press exit trigger mode */
+		app_timer_stop(m_trigger_timer_id);
+		
 		if(relay_status)
 		{			
 			relay_status = 0;
@@ -1018,6 +1055,8 @@ static void timers_init(void)
     err_code = app_timer_create(&m_hang_on_timer_id, APP_TIMER_MODE_SINGLE_SHOT, hang_on_handler);                                                                
     APP_ERROR_CHECK(err_code);	
 	
+    err_code = app_timer_create(&m_trigger_timer_id, APP_TIMER_MODE_SINGLE_SHOT, trigger_handler);                                                                
+    APP_ERROR_CHECK(err_code);	
 }
 /**@brief Function for starting application timers.
  */
@@ -1043,7 +1082,8 @@ static void application_timers_start(void)
 	
     err_code = app_timer_start(m_temp_mes_timer_id, TEMP_MES_INTERVAL, NULL);	/* temperature measurement */
     APP_ERROR_CHECK(err_code);
-	
+
+
 }
 /**@brief Function for initializing buttons and leds.
  *
@@ -1190,9 +1230,7 @@ int main(void)
 	
 	SEGGER_RTT_printf(0, "BUILD DATE:[%s %s].\r\n", __DATE__,__TIME__);
 	SEGGER_RTT_printf(0, "RESET_REASON:%2x\r\n",(uint16_t)NRF_POWER->RESETREAS);
-	
-	
-	
+			
 	NRF_POWER->RESETREAS = 0xffffffff;
 #endif	
 	
@@ -1273,13 +1311,13 @@ int main(void)
         if (rbc_mesh_event_get(&evt) == NRF_SUCCESS)
         {   
             rbc_mesh_event_handler(&evt);
-            rbc_mesh_event_release(&evt);						
+			nrf_drv_wdt_channel_feed(m_channel_id);
+            rbc_mesh_event_release(&evt);			
         }						
 		//sd_app_evt_wait();
 		
 		nrf_drv_wdt_channel_feed(m_channel_id);
-		
-		
+				
     }
 }
 

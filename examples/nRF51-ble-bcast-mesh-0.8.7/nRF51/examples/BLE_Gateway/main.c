@@ -949,8 +949,11 @@ void bsp_event_handler(bsp_event_t event)
 #ifdef BREATH_LED			
 			update_pwm_value(0x00);
 #else			
-			nrf_gpio_pin_clear(LED_1);
-			nrf_gpio_pin_clear(LED_3);	
+	
+			
+			nrf_gpio_pin_set(LED_1);
+			nrf_gpio_pin_set(LED_3);				
+			
 #endif			
 			shut_pir_sound_timer();		
 			err_code = app_timer_start(m_hang_on_timer_id, KEY_PERIOD_HANG_SENSOR, NULL);			
@@ -974,8 +977,11 @@ void bsp_event_handler(bsp_event_t event)
 #ifdef BREATH_LED			
 			update_pwm_value(100);	
 #else			
-			nrf_gpio_pin_set(LED_1);
-			nrf_gpio_pin_set(LED_3);					
+
+			nrf_gpio_pin_clear(LED_1);
+			nrf_gpio_pin_clear(LED_3);
+
+			
 #endif			
 #ifdef RELAY_LATCH
 			relay_on();
@@ -1286,7 +1292,7 @@ int main(void)
 //	app_pwm_enable(&PWM1);
 	application_timers_start();	
 //	motion_sound_event_set(HEARTBEAT_EVENT);
-	
+	rbc_mesh_stop();
     rbc_mesh_event_t evt;
     while (true)
     {

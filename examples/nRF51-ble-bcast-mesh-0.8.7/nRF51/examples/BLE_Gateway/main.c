@@ -336,7 +336,7 @@ void leds_on_for_while(void)
 	}
 		
 	nrf_gpio_pin_clear(BSP_LED_0);
-	nrf_gpio_pin_set(BSP_LED_1);
+	nrf_gpio_pin_clear(BSP_LED_1);
 	nrf_gpio_pin_clear(BSP_LED_2);
 	nrf_gpio_pin_clear(BSP_LED_3);
 }
@@ -374,14 +374,14 @@ void led_communicate_blink(led_event_e led_event_type)
 	//UNUSED_PARAMETER(led_event_type);
 	update_led_event(led_event_type);
 	
-	nrf_gpio_pin_clear(BSP_LED_1);
+	nrf_gpio_pin_set(BSP_LED_1);
 	uint32_t err_code = app_timer_start(m_communicate_timer_id, COMMUNICATE_INTERVAL, NULL);
 	APP_ERROR_CHECK(err_code);	
 }
 void motion_sound_event_set(led_event_e led_event_type)
 {
 	update_led_event(led_event_type);
-	nrf_gpio_pin_clear(BSP_LED_1);	
+	nrf_gpio_pin_set(BSP_LED_1);	
 	
 	uint32_t err_code = app_timer_start(m_motion_sound_timer_id, MOTION_SOUND_INTERVAL, NULL);
 	APP_ERROR_CHECK(err_code);	
@@ -447,7 +447,7 @@ static void led_heartbeat_handler(void * p_context)
 		{
 			if(!led_event.on_time--)
 			{					
-				nrf_gpio_pin_set(BSP_LED_1);
+				nrf_gpio_pin_clear(BSP_LED_1);
 				led_event.status = false;
 				led_event.off_time = (uint16_t)HEARTBEAT_EVENT_OFF; 
 				led_event.on_time = (uint16_t)HEARTBEAT_EVENT_ON; 
@@ -456,7 +456,7 @@ static void led_heartbeat_handler(void * p_context)
 		{
 			if(!led_event.off_time--)
 			{			
-				nrf_gpio_pin_clear(BSP_LED_1);
+				nrf_gpio_pin_set(BSP_LED_1);
 				led_event.status = true;
 				led_event.on_time = (uint16_t)HEARTBEAT_EVENT_ON;
 				led_event.off_time = (uint16_t)HEARTBEAT_EVENT_OFF; 		
@@ -511,7 +511,7 @@ static void led_off_handler(void * p_context)
     uint32_t err_code;
 	
 	UNUSED_PARAMETER(p_context);		
-    nrf_gpio_pin_set(BSP_LED_1);	
+    nrf_gpio_pin_clear(BSP_LED_1);	
 	//update_led_event(HEARTBEAT_EVENT);
 	
 	led_event.status = false;
@@ -534,7 +534,7 @@ static void led_off_handler(void * p_context)
 static void blink_off_handler(void * p_context)
 {	
 	UNUSED_PARAMETER(p_context);		
-    nrf_gpio_pin_set(BSP_LED_1);	
+    nrf_gpio_pin_clear(BSP_LED_1);	
 	update_led_event(HEARTBEAT_EVENT);			
 }
 
@@ -900,7 +900,7 @@ void gpio_init(void)
     {
         nrf_gpio_pin_set(LED_START + i);
     }	
-	nrf_gpio_pin_clear(BSP_LED_1);	// LOW LEVEL LED1 ON
+	nrf_gpio_pin_set(BSP_LED_1);	// LOW LEVEL LED1 ON
 	
 #if defined(BOARD_LIGHTSWITCH)			
 	nrf_gpio_cfg_output(RELAY_OFF);

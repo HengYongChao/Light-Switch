@@ -83,6 +83,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MESH_ACCESS_ADDR        	(RBC_MESH_ACCESS_ADDRESS_BLE_ADV)   /**< Access address for the mesh to operate on. */
 #define MESH_INTERVAL_MIN_MS    	(100)                               /**< Mesh minimum advertisement interval in milliseconds. */
 #define MESH_CHANNEL            	(38)                                /**< BLE channel to operate on. Single channel only. */
+
 #define APP_TIMER_PRESCALER        	(0)                                 /**< Value of the RTC1 PRESCALER register. */
 #define APP_TIMER_MAX_TIMERS       	(12 + BSP_APP_TIMERS_NUMBER)      	/**< Maximum number of simultaneously created timers. */
 #define APP_TIMER_OP_QUEUE_SIZE    	(4)                                 /**< Size of timer operation queues. */
@@ -99,25 +100,43 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TEMP_MES_INTERVAL    	APP_TIMER_TICKS(620, APP_TIMER_PRESCALER) 	/**< temperature measure interval (ticks). */
 #define WATCHDOG_INTERVAL    	APP_TIMER_TICKS(505, APP_TIMER_PRESCALER) 	/**< watchdog interval (ticks). */
 #define KEY_PERIOD_HANG_SENSOR	APP_TIMER_TICKS(3009, APP_TIMER_PRESCALER)  /**< detect key hang motion and sound interval (ticks). */
-#define TRIGGER_INTERVAL		APP_TIMER_TICKS(60000, APP_TIMER_PRESCALER)  /**< TRIGGER THEN DELAY OFF(ticks). */
+#define TRIGGER_INTERVAL		APP_TIMER_TICKS(300000, APP_TIMER_PRESCALER)  /**< TRIGGER THEN DELAY OFF(ticks). */
 
+/**@brief Timer status. */
+typedef enum
+{
+    APP_TIMER_STOP,                 /**< The timer no initial or stoped. */
+	APP_TIMER_START                 /**< The timer already started. */
+} app_timer_status_t;
 
 static app_timer_id_t           m_heartbeat_timer_id;         /**< heartbeat timer. */
+static app_timer_status_t		s_heartbeat_timer;			  /**< status of heartbeat timer. */	
 #ifdef RELAY_LATCH
 static app_timer_id_t           m_relay_timer_id;             /**< relay execute timer. */
+static app_timer_status_t		s_relay_timer;				  /**< status of relay execute timer. */
 #endif
 static app_timer_id_t           m_communicate_timer_id;       /**< led communicate timer. */
+static app_timer_status_t		s_communicate_timer;		  /**< status of led communicate timer. */
 static app_timer_id_t           m_motion_sound_timer_id;      /**< motion and sound event timer. */
+static app_timer_status_t		s_motion_sound_timer;		  /**< status of motion and sound event timer. */
 #ifdef BREATH_LED
 static app_timer_id_t           m_pwm_update_timer_id;        /**< PWM update timer. */
+static app_timer_status_t		s_pwm_update_timer;			  /**< status of PWM update timer. */
 #endif
 static app_timer_id_t           m_pir_mes_timer_id;           /**< PIR measure timer. */
+static app_timer_status_t		s_pir_mes_timer;			  /**< status of PIR measure timer. */
 static app_timer_id_t           m_sound_mes_timer_id;         /**< sound measure timer. */
+static app_timer_status_t		s_sound_mes_timer;			  /**< status of sound measure timer. */
 static app_timer_id_t           m_light_mes_timer_id;         /**< light sensor measure timer. */
+static app_timer_status_t		s_light_mes_timer; 			  /**< status of light sensor measure timer. */
 static app_timer_id_t           m_temp_mes_timer_id;          /**< temperature measure timer. */
+static app_timer_status_t		s_temp_mes_timer;			  /**< status of temperature measure timer. */
 static app_timer_id_t           m_watchdog_timer_id;          /**< watchdog timer. */
+static app_timer_status_t		s_watchdog_timer; 			  /**< status of watchdog timer. */
 static app_timer_id_t           m_hang_on_timer_id;           /**< hang on sound & pir timer. */
-static app_timer_id_t           m_trigger_timer_id; 
+static app_timer_status_t		s_hang_on_timer;			  /**< status of hang on sound & pir timer. */
+static app_timer_id_t           m_trigger_timer_id; 		  /**< darkness occpuy sensor trigger timer. */	
+static app_timer_status_t		s_trigger_timer;  			  /**< status of trigger timer. */
 
 static ble_temp_t               m_temp;     /**< Structure used to identify the battery service. */
 static ble_light_t              m_light;
@@ -853,6 +872,7 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* p_evt)
                 break;
 
             //led_config(p_evt->params.rx.value_handle, p_evt->params.rx.p_data[0]);
+			
             break;
         case RBC_MESH_EVENT_TYPE_TX:
             break;
@@ -1292,7 +1312,7 @@ int main(void)
 //	app_pwm_enable(&PWM1);
 	application_timers_start();	
 //	motion_sound_event_set(HEARTBEAT_EVENT);
-	rbc_mesh_stop();
+//	rbc_mesh_stop();
     rbc_mesh_event_t evt;
     while (true)
     {
@@ -1320,7 +1340,7 @@ int main(void)
 			nrf_drv_wdt_channel_feed(m_channel_id);
             rbc_mesh_event_release(&evt);			
         }						
-		//sd_app_evt_wait();
+		sd_app_evt_wait();
 		
 		nrf_drv_wdt_channel_feed(m_channel_id);
 				

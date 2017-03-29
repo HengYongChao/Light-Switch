@@ -1,0 +1,367 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/examples/BLE_Gateway/main.c",
+			"settings":
+			{
+				"buffer_size": 40697,
+				"encoding": "Western (Windows 1252)",
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh/nRF51/rbc_mesh/src/rbc_mesh.c",
+			"settings":
+			{
+				"buffer_size": 13059,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 81.0,
+		"last_filter": "Install Package",
+		"selected_items":
+		[
+			[
+				"Install Package",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 400.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); open(os.path.join(ipp, pf), 'wb').write(urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ','%20')).read())"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/examples",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/examples/BLE_Gateway",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/examples/BLE_Gateway/arm"
+	],
+	"file_history":
+	[
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/CLK/CLK_SYSCLKSwitch/main.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/RTC/RTC_PeriodicWakeup500ms/stm8l15x_it.h",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/RTC/RTC_PeriodicWakeup500ms/stm8l15x_it.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Libraries/STM8L15x_StdPeriph_Driver/src/stm8l15x_rtc.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/CLK/CLK_SYSCLKSwitch/stm8l15x_it.h",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/CLK/CLK_SYSCLKSwitch/stm8l15x_it.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/CLK/CLK_SYSCLKSwitch/stm8l15x_conf.h",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/LCD/LCD_SegmentsDrive/main.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/RTC/RTC_PeriodicWakeup500ms/main.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/RTC/RTC_Calendar/main.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/TIM2/TIM2_TRIGLSE/main.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/RTC/RTC_WakeUpLPMode/readme.txt",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/TIM4/TIM4_TimeBase/main.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/ADC/ADC_IDD_measurement/main.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/EXTI/EXTI_IOControl/stm8l15x_it.h",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/EXTI/EXTI_IOControl/stm8l15x_it.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Libraries/STM8L15x_StdPeriph_Driver/inc/stm8l15x_gpio.h",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Utilities/Misc/timing_delay.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/I2C/I2C_TwoBoards/I2C_JoystickPlay/Master/main.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/ADC/ADC_IDD_measurement/stm8l15x_it.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Utilities/STM8_EVAL/STM8L1526_EVAL/stm8l1526_eval.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/EXTI/EXTI_IOControl/main.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Libraries/STM8L15x_StdPeriph_Driver/src/stm8l15x_exti.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Libraries/STM8L15x_StdPeriph_Driver/src/stm8l15x_clk.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/TIM1/TIM1_DMABurstMode/stm8l15x_it.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Libraries/STM8L15x_StdPeriph_Driver/src/stm8l15x_gpio.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Utilities/STM8_EVAL/STM8L1528_EVAL/stm8l1528_eval.c",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/stm8l15x-16x-05x-al31-l_stdperiph_lib_um.chm",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/EXTI/EXTI_IOControl/readme.txt",
+		"/F/work/ZhouMingMing/STM8L15x-16x-05x-AL31-L_StdPeriph_Lib/Project/STM8L15x_StdPeriph_Examples/ITC/ITC_SoftwarePriority/main.c",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/SDK/ble_service/ble_temperature.c",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/components/drivers_nrf/hal/nrf_adc.c",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/rbc_mesh/include/rbc_mesh_common.h",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/ble_peripheral/nrf51-ble-tutorial-advertising/Abstract.txt",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/SDK/ble_service/ble_temperature.h",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/SDK/ble_service/ble_light.h",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/examples/BLE_Gateway/main.c",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/SDK/ble_service/ble_temperature.c",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/SDK/ble_service/ble_temperature.h",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/SDK/ble_service/ble_light.c",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/SDK/ble_service/ble_light.h",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-lightswitch/components/ble/common/ble_srv_common.h",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/examples/BLE_Gateway/main.c",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-lightswitch/components/softdevice/s110/headers/ble_types.h",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/softdevices/s110_nrf51_8.0.0/s110_nrf51_8.0.0_API/include/ble_gatts.h",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/examples/BLE_Gateway/nrf_adv_conn.c",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/SDK/ble_service/ble_sensor.c",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/SDK/ble_service/ble_sensor.h",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-freertos/examples/peripheral/pwm/main.c",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-freertos/components/libraries/pwm/app_pwm.c",
+		"/F/work/BlueTooth/nRF51_SDK_8.1.0-freertos/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/examples/BLE_Gateway/main.c",
+		"/C/Users/Administrator/Desktop/翻译.txt"
+	],
+	"find":
+	{
+		"height": 23.0
+	},
+	"find_in_files":
+	{
+		"height": 90.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"rbc_mesh_init",
+			"EXTI_ClearITPendingBit",
+			"WakeUpCmd",
+			"PWR_FastWakeUpCmd",
+			"delay",
+			"GPIO_Mode_In_FL_IT",
+			"PressedButton",
+			"BUTTON_RIGHT",
+			"BUTTON_KEY",
+			"PressedButton",
+			"serial_handler_event_send",
+			"schedule_transmit",
+			"BLE_GAP_CONN_SEC_MODE_SET_OPEN",
+			"is_notification_supported",
+			"Battery",
+			"BAS",
+			"BATTERY",
+			"battery",
+			"bas",
+			"initial_batt_level",
+			"Battery",
+			"battery",
+			"ble_light_battery_level_update",
+			"bas",
+			"BAS",
+			"battery",
+			"RTT_CTRL_BG_BRIGHT_RED",
+			"on_connect",
+			"Battery",
+			"BLE_UUID_REPORT_REF_DESCR",
+			"ble_bas_evt_t",
+			"Temperature_level_handles",
+			"Battery",
+			"p_bas",
+			"ble_bas_t",
+			"Battery",
+			"p_bas",
+			"ble_bas_evt_handler_t",
+			"ble_bas_t",
+			"BLE_BAS_EVT_NOTIFICATION_DISABLED",
+			"BLE_BAS_EVT_NOTIFICATION_ENABLED"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"Light",
+			"LIGHT",
+			"light",
+			"Light",
+			"light",
+			"LIGHT",
+			"Light Sensor",
+			"Temperature",
+			"p_temp",
+			"ble_temp_t",
+			"Temperature",
+			"p_temp",
+			"ble_temp_evt_handler_t",
+			"ble_temp_t"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh-0.8.7/nRF51/examples/BLE_Gateway/main.c",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 40697,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								39093,
+								39093
+							]
+						],
+						"settings":
+						{
+							"is_init_dirty_state": false,
+							"origin_encoding": "UTF-8",
+							"syntax": "Packages/C++/C.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 17224.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/F/work/BlueTooth/nRF51_SDK_8.1.0_lightswitch/examples/nRF51-ble-bcast-mesh/nRF51/rbc_mesh/src/rbc_mesh.c",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 13059,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4091,
+								4091
+							]
+						],
+						"settings":
+						{
+							"is_init_dirty_state": false,
+							"origin_encoding": "ASCII",
+							"syntax": "Packages/C++/C.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 931.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "nRF51-ble-bcast-mesh.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 444.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

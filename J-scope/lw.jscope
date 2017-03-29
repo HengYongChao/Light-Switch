@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<JScopeProject>
+    <FileVersion major="1" minor="1" />
+    <Project>
+        <Configuration>
+            <JLink>
+                <Options IsRTTSession="0" IsRTTWithTimeStamp="1" SamplingPeriod="50" Connection="1" SerialNo="0" IP="" TargetDevice="unspecified" TargetInterface="SWD" InterfaceSpeed="4000" />
+            </JLink>
+            <ElfFile Name="F:\work\BlueTooth\nRF51_SDK_8.1.0_lightswitch\examples\nRF51-ble-bcast-mesh-0.8.7\nRF51\examples\BLE_Gateway\arm\_build\rbc_gateway_example_serial_blinky_PCA10028_nRF51422_xxAC.axf" />
+            <DataFile Name="" />
+            <RawFile Name="" />
+            <Scope>
+                <Options TimeResolutionUs="5000000" />
+            </Scope>
+        </Configuration>
+        <Windows>
+            <Graph Show="1" />
+            <Watch Show="1" />
+        </Windows>
+        <SelectedSymbols>
+            <Symbol>
+                <Options Name="_led" Address="0x20002076" Type="uchar" TypeID="6" Size="1" GraphColorRed="255" GraphColorGreen="215" GraphColorBlue="0" YMinSampled="0" YMaxSampled="1" YAvgSampled="0" Offset="4" ShowInGraph="1" YOffset="200" IsAutoConfig="1" YResolution="1" MaxValue="5" File="..\main.c" Scope="1" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="light_sample" Address="0x2000205C" Type="volatile uint" TypeID="8" Size="4" GraphColorRed="0" GraphColorGreen="255" GraphColorBlue="0" YMinSampled="0" YMaxSampled="8959" YAvgSampled="2" Offset="5" ShowInGraph="1" YOffset="250" IsAutoConfig="1" YResolution="20000" MaxValue="93200" File="..\main.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="relay_status" Address="0x20002074" Type="uchar" TypeID="6" Size="1" GraphColorRed="0" GraphColorGreen="0" GraphColorBlue="255" YMinSampled="0" YMaxSampled="1" YAvgSampled="0" Offset="9" ShowInGraph="1" YOffset="300" IsAutoConfig="1" YResolution="1" MaxValue="4" File="..\main.c" Scope="1" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="sound_sample" Address="0x20002058" Type="volatile int" TypeID="12" Size="4" GraphColorRed="160" GraphColorGreen="32" GraphColorBlue="240" YMinSampled="0" YMaxSampled="870" YAvgSampled="58" Offset="10" ShowInGraph="1" YOffset="50" IsAutoConfig="1" YResolution="500" MaxValue="1000" File="..\main.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="temp_sample" Address="0x20002060" Type="volatile int" TypeID="12" Size="4" GraphColorRed="255" GraphColorGreen="0" GraphColorBlue="0" YMinSampled="0" YMaxSampled="300" YAvgSampled="246" Offset="14" ShowInGraph="1" YOffset="510" IsAutoConfig="1" YResolution="200" MaxValue="412" File="..\main.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+            <Symbol>
+                <Options Name="PIR_Buffer[1]" Address="0x20002054" Type="volatile int" TypeID="8" Size="4" GraphColorRed="0" GraphColorGreen="191" GraphColorBlue="255" YMinSampled="0" YMaxSampled="1023" YAvgSampled="557" Offset="18" ShowInGraph="1" YOffset="170" IsAutoConfig="0" YResolution="200" MaxValue="1092" File="..\main.c" Scope="0" DrawStyle="0" />
+            </Symbol>
+        </SelectedSymbols>
+    </Project>
+</JScopeProject>

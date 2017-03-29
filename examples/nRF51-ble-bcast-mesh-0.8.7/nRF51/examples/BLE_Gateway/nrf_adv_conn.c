@@ -169,7 +169,7 @@ void nrf_adv_conn_init(void)
     APP_ERROR_CHECK(error_code);
     
     char name[64];
-    sprintf(name, "LightSwitch #%d", 
+    sprintf(name, "LightSwitchGateway #%d", 
         ((uint16_t) my_addr.addr[4] << 8) | (my_addr.addr[5]));
     
     error_code = sd_ble_gap_device_name_set(&name_sec_mode, (uint8_t*) name, strlen(name));

@@ -85,7 +85,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MESH_CHANNEL            	(38)                                /**< BLE channel to operate on. Single channel only. */
 
 #define APP_TIMER_PRESCALER        	(0)                                 /**< Value of the RTC1 PRESCALER register. */
-#define APP_TIMER_MAX_TIMERS       	(12 + BSP_APP_TIMERS_NUMBER)      	/**< Maximum number of simultaneously created timers. */
+#define APP_TIMER_MAX_TIMERS       	(16 + BSP_APP_TIMERS_NUMBER)      	/**< Maximum number of simultaneously created timers. */
 #define APP_TIMER_OP_QUEUE_SIZE    	(4)                                 /**< Size of timer operation queues. */
 
 #define HEARTBEAT_INTERVAL      APP_TIMER_TICKS(130, APP_TIMER_PRESCALER) 		/**< led1 heartbeat interval (ticks). */
@@ -98,8 +98,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SOUND_MES_INTERVAL    	APP_TIMER_TICKS(12,  APP_TIMER_PRESCALER) 		/**< sound measure interval (ticks). */
 #define LIGHT_MES_INTERVAL    	APP_TIMER_TICKS(540, APP_TIMER_PRESCALER) 		/**< light sonsor measure interval (ticks). */
 #define TEMP_MES_INTERVAL    	APP_TIMER_TICKS(620, APP_TIMER_PRESCALER) 		/**< temperature measure interval (ticks). */
-#define WATCHDOG_INTERVAL    	APP_TIMER_TICKS(505, APP_TIMER_PRESCALER) 		/**< watchdog interval (ticks). */
-#define KEY_PERIOD_HANG_SENSOR	APP_TIMER_TICKS(5009,APP_TIMER_PRESCALER)  		/**< If key hit detected hang motion and sound interval (ticks). */
+#define WATCHDOG_INTERVAL    	APP_TIMER_TICKS(1005, APP_TIMER_PRESCALER) 		/**< watchdog interval (ticks). */
+#define KEY_PERIOD_HANG_SENSOR	APP_TIMER_TICKS(10009,APP_TIMER_PRESCALER)  		/**< If key hit detected hang motion and sound interval (ticks). */
 #define TRIGGER_INTERVAL		APP_TIMER_TICKS(300000, APP_TIMER_PRESCALER)  	/**< TRIGGER THEN DELAY OFF(ticks). */
 
 /**@brief Timer status. */
@@ -160,7 +160,7 @@ static  nrf_drv_wdt_channel_id m_channel_id;		//wdt
 void update_led_event(led_event_e led_event_type);
 void relay_on(void);
 void relay_off(void);
-
+void restart_pir_sound_detect(void);
 static uint8_t	_led = 0;
 
 uint16_t const ntc_table_10K[20] =	
@@ -237,13 +237,19 @@ static void start_halt_pir_sound_timer(void)
 	{
 		err_code = app_timer_stop(m_hang_on_timer_id);
 		APP_ERROR_CHECK(err_code);
-		s_hang_on_timer = APP_TIMER_STOP;								
+		s_hang_on_timer = APP_TIMER_STOP;	
+#ifdef DEBUG_LOG_RTT		
+		SEGGER_RTT_printf(0, "s_hang_on_timer = APP_TIMER_STOP; [start_halt_pir_sound_timer].\r\n");
+#endif		
 	}						
 	if(s_hang_on_timer == APP_TIMER_STOP)
 	{
 		err_code = app_timer_start(m_hang_on_timer_id, KEY_PERIOD_HANG_SENSOR, NULL);			
 		APP_ERROR_CHECK(err_code);
 		s_hang_on_timer = APP_TIMER_START;
+#ifdef DEBUG_LOG_RTT		
+		SEGGER_RTT_printf(0, "s_hang_on_timer = APP_TIMER_START; [start_halt_pir_sound_timer].\r\n");
+#endif		
 	} 	
 }
 
@@ -256,7 +262,9 @@ static void trigger_handler(void * p_context)
 		relay_off();
 		nrf_gpio_pin_clear(LED_1);
 		nrf_gpio_pin_clear(LED_3);
-	}
+				
+		restart_pir_sound_detect();		
+	}			
 }
 void stop_pir_sound_detect(void)
 {
@@ -423,9 +431,11 @@ void leds_on_for_while(void)
 {
 	uint8_t i;
 	
+	
 	for( i= 0; i <= 20; i++)
 	{
 		nrf_delay_ms(50);
+		nrf_drv_wdt_channel_feed(m_channel_id);
 		nrf_gpio_pin_toggle(BSP_LED_1);
 	}
 		
@@ -643,7 +653,7 @@ static void led_off_handler(void * p_context)
 #endif		
 	}
 
-	
+	s_motion_sound_timer = APP_TIMER_STOP;
 }
 /**@brief Function for handling the led communicate timer timeout.
  *
@@ -669,8 +679,12 @@ static void led_communicate_blink_handler(void * p_context)
  */
 static void pause_pir_sound_handler(void * p_context)
 {		
-	UNUSED_PARAMETER(p_context);		
+	UNUSED_PARAMETER(p_context);
+#ifdef DEBUG_LOG_RTT		
+		SEGGER_RTT_printf(0, "restart_pir_sound_detect.\r\n");
+#endif	
 	restart_pir_sound_detect();	
+	s_hang_on_timer = APP_TIMER_STOP;
 }
 #ifdef BREATH_LED
 /**@brief Function for handling the pwm update timer timeout.
@@ -744,8 +758,7 @@ static void pir_event_handler(void * p_context)
 	if(PIR_Buffer[1] < 200) 
 	{
 		update_led_event(MOTION_EVENT);
-		motion_sound_event_set(MOTION_EVENT);
-		
+		motion_sound_event_set(MOTION_EVENT);		
 		
 #ifdef DEBUG_LOG_RTT
 		SEGGER_RTT_printf(0, "MOTION_EVENT %2d\r\n",(uint16_t)PIR_Buffer[1]);															
@@ -803,7 +816,7 @@ static void sound_event_handler(void * p_context)
 #ifdef DEBUG_LOG_RTT
 		SEGGER_RTT_printf(0, "SOUND_EVENT %2d\r\n",(uint16_t)sound_sample);															
 #endif	
-		if((sound_sample > 310)&&(!pir_triggle_mode)) /* NO Enter */
+		if((light_sample < 10)&&(!pir_triggle_mode)) /* NO Enter */
 		{
 			pir_triggle_mode = 1;
 						
@@ -1309,7 +1322,7 @@ void bsp_wdt_init(void)
 	
     //Configure WDT.
 	nrf_drv_wdt_config_t config;	
-	config.behaviour = NRF_WDT_BEHAVIOUR_PAUSE_SLEEP_HALT;
+	config.behaviour = NRF_WDT_BEHAVIOUR_RUN_SLEEP_HALT; /**< WDT will run when CPU is in SLEEP or HALT mode. */
 	config.interrupt_priority = APP_IRQ_PRIORITY_HIGH;
 	config.reload_value = 2000;	
 	
@@ -1410,11 +1423,9 @@ int main(void)
 	bsp_wdt_init();
 	
 #ifdef DEBUG_LOG_RTT	// RTT debug interface.
-	SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
-	
+	SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);	
 	SEGGER_RTT_printf(0, "BUILD DATE:[%s %s].\r\n", __DATE__,__TIME__);
-	SEGGER_RTT_printf(0, "RESET_REASON:%2x\r\n",(uint16_t)NRF_POWER->RESETREAS);
-			
+	SEGGER_RTT_printf(0, "RESET_REASON:%2x\r\n",(uint16_t)NRF_POWER->RESETREAS);			
 	NRF_POWER->RESETREAS = 0xffffffff;
 #endif	
 	

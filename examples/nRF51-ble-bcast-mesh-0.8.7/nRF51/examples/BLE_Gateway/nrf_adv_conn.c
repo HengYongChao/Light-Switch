@@ -42,6 +42,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include "mesh_metadata.h"
                             
 #define BLE_ADV_INTERVAL_750MS (800)
 #define BLE_ADV_INTERVAL_200MS (320)
@@ -75,6 +76,8 @@ static ble_gap_sec_params_t ble_gap_bond_params = {
     .min_key_size = 7,                 /* Minimum encryption key size */
     .max_key_size = 16                 /* Maximum encryption key size */
 };
+
+extern mesh_metadata_t mesh_data;
 
 /*****************************************************************************
 * Static Functions
@@ -171,7 +174,7 @@ void nrf_adv_conn_init(void)
     char name[64];
     sprintf(name, "LightSwitchGateway #%d", 
         ((uint16_t) my_addr.addr[4] << 8) | (my_addr.addr[5]));
-    
+    mesh_data.serialnumber = ((uint16_t) my_addr.addr[4] << 8) | ((uint16_t)(my_addr.addr[5]));
     error_code = sd_ble_gap_device_name_set(&name_sec_mode, (uint8_t*) name, strlen(name));
     APP_ERROR_CHECK(error_code);
     

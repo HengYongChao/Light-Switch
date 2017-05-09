@@ -94,7 +94,6 @@
 #define configUSE_PREEMPTION                                                      1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION                                   0
 #define configUSE_TICKLESS_IDLE                                                   0
-#define configUSE_TICKLESS_IDLE_SIMPLE_DEBUG                                      1 /* See into vPortSuppressTicksAndSleep source code for explanation */
 #define configCPU_CLOCK_HZ                                                        ( SystemCoreClock )
 #define configTICK_RATE_HZ                                                        1000
 #define configMAX_PRIORITIES                                                      ( 3 )
@@ -129,7 +128,7 @@
 #define configMAX_CO_ROUTINE_PRIORITIES                                           ( 2 )
 
 /* Software timer definitions. */
-#define configUSE_TIMERS                                                          1
+#define configUSE_TIMERS                                                          0
 #define configTIMER_TASK_PRIORITY                                                 ( 2 )
 #define configTIMER_QUEUE_LENGTH                                                  32
 #define configTIMER_TASK_STACK_DEPTH                                              ( 80 )
@@ -168,7 +167,11 @@
 
 /* The lowest interrupt priority that can be used in a call to a "set priority"
 function. */
+#ifdef SOFTDEVICE_PRESENT
+#define configLIBRARY_LOWEST_INTERRUPT_PRIORITY         3
+#else
 #define configLIBRARY_LOWEST_INTERRUPT_PRIORITY         0xf
+#endif
 
 /* The highest interrupt priority that can be used by any interrupt service
 routine that makes calls to interrupt safe FreeRTOS API functions.  DO NOT CALL

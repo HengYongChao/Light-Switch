@@ -72,8 +72,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //#include "ble_srv_common.h"
 #include "ble_temperature.h"
 #include "ble_light.h"
+#include "mesh_metadata.h"
 
-#define DEVICE_NAME                  "LIGHT_SWITCH" /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                  "LIGHT_SWITCH" 		 /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME            "TEMCOCONTROLS"     	 /**< Manufacturer. Will be passed to Device Information Service. */
 #define DEVICE_HARDWARE_VERSION		 "v3B"					 /* Device hardware version */
 #define DEVICE_FIRMWARE_VERSION		 __DATE__				 /* Device firmware version */
@@ -89,7 +90,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define APP_TIMER_OP_QUEUE_SIZE    	(4)                                 /**< Size of timer operation queues. */
 
 #define HEARTBEAT_INTERVAL      APP_TIMER_TICKS(130, APP_TIMER_PRESCALER) 		/**< led1 heartbeat interval (ticks). */
-#define RELAY_LATCH_INTERVAL    APP_TIMER_TICKS(90,  APP_TIMER_PRESCALER) 		/**< RELAY interval (ticks). */
+#define RELAY_LATCH_INTERVAL    APP_TIMER_TICKS(300,  APP_TIMER_PRESCALER) 		/**< RELAY interval (ticks). */
 #define COMMUNICATE_INTERVAL    APP_TIMER_TICKS(50,  APP_TIMER_PRESCALER) 		/**< communicate led interval (ticks). */
 #define MOTION_SOUND_INTERVAL   APP_TIMER_TICKS(3760,APP_TIMER_PRESCALER) 		/**< SOUND&MOTION led interval (ticks). */
 /* a man breath rates 16-20 per minute, T = 3s - 3.75s, step length 40, so interval 75-93 */
@@ -161,7 +162,8 @@ void update_led_event(led_event_e led_event_type);
 void relay_on(void);
 void relay_off(void);
 void restart_pir_sound_detect(void);
-static uint8_t	_led = 0;
+//static uint8_t	_led = 0;
+
 
 uint16_t const ntc_table_10K[20] =	
 {
@@ -181,6 +183,7 @@ uint16_t const lightsensor_table_tps851[27] =
 
 APP_PWM_INSTANCE(PWM1,1);                   // Create the instance "PWM1" using TIMER1.
 
+mesh_metadata_t mesh_data;
 
 #if NORDIC_SDK_VERSION >= 11
 nrf_nvic_state_t nrf_nvic_state = {0};
@@ -220,11 +223,11 @@ static void indicate_led(bool op)
 	if(op)
 	{
 		nrf_gpio_pin_set(BSP_LED_1);
-		_led = 1;
+//		_led = 1;
 	}else
 	{
 		nrf_gpio_pin_clear(BSP_LED_1);
-		_led = 0;
+//		_led = 0;
 	}
 }
 
@@ -787,11 +790,14 @@ static void pir_event_handler(void * p_context)
 #ifdef DEBUG_LOG_RTT
 			SEGGER_RTT_printf(0, "ENTER TRIGGER MODE --PIR.\r\n");	/* ADJUST TBD dynamic regulation */														
 #endif			
-			stop_pir_sound_detect();		
-		 }		
-		 		
-	}
-		
+			stop_pir_sound_detect();	
+			
+			mesh_data.flag.occupy_event = 1;
+			mesh_data.occupy_sensor.occupy_value = (uint16_t)PIR_Buffer[1];
+			rbc_mesh_value_set(1, (uint8_t *)&mesh_data, sizeof(mesh_data));	
+			mesh_data.flag.occupy_event = 0;
+		 }				 		
+	}		
 }
 /**@brief Function for handling the sound event timer timeout.
  *
@@ -841,6 +847,11 @@ static void sound_event_handler(void * p_context)
 			SEGGER_RTT_printf(0, "ENTER TRIGGER MODE --SOUND.\r\n");															
 #endif		
 			stop_pir_sound_detect();	
+			
+			mesh_data.flag.sound_event = 1;
+			mesh_data.sound_sensor.sound_value = (uint16_t)sound_sample;
+			rbc_mesh_value_set(1, (uint8_t *)&mesh_data, sizeof(mesh_data));	
+			mesh_data.flag.sound_event = 0;	
 		 }			
 	}		
 }
@@ -862,6 +873,8 @@ static void light_event_handler(void * p_context)
 	light_sample *= 527;
 	light_sample /= 2000;		/* k = 1891 */
 
+	mesh_data.light = light_sample;
+	
 	err_code = ble_light_sensor_level_update(&m_light,(uint16_t)light_sample);
     if ((err_code != NRF_SUCCESS) &&
         (err_code != NRF_ERROR_INVALID_STATE) &&
@@ -891,6 +904,8 @@ static void temperature_event_handler(void * p_context)
 	UNUSED_PARAMETER(p_context);				
 	temp_sample = update_temperature((int16_t)nrf_adc_convert_single(NRF_ADC_CONFIG_INPUT_5), true);
 	
+	mesh_data.temperature = temp_sample;
+		
 	err_code = ble_temp_Temperature_level_update(&m_temperature, (uint16_t)temp_sample);
     if ((err_code != NRF_SUCCESS) &&
         (err_code != NRF_ERROR_INVALID_STATE) &&
@@ -1019,6 +1034,22 @@ static void rbc_mesh_event_handler(rbc_mesh_event_t* p_evt)
 
             //led_config(p_evt->params.rx.value_handle, p_evt->params.rx.p_data[0]);
 			
+			if(p_evt->params.rx.value_handle == 0x00)
+			{
+				if(p_evt->params.rx.p_data[0])
+				{
+					relay_status = 1;
+					back_light_units(false);
+					relay_on();
+				}else
+				{
+					relay_status = 0;
+					back_light_units(true);	
+					relay_off();
+				}
+			}
+			
+			
             break;
         case RBC_MESH_EVENT_TYPE_TX:
             break;
@@ -1098,7 +1129,7 @@ void gpio_init(void)
  */
 void bsp_event_handler(bsp_event_t event)
 {
-//    uint32_t err_code;
+
     switch (event)
     {
         case BSP_EVENT_KEY_0:
@@ -1128,7 +1159,16 @@ void bsp_event_handler(bsp_event_t event)
 			start_halt_pir_sound_timer();			 					
 	
 #ifdef RELAY_LATCH	
+			uint32_t err_code;			
 			relay_off();
+			
+			if(s_relay_latch_timer == APP_TIMER_START)
+			{
+				err_code = app_timer_stop(m_relay_latch_timer_id);
+				APP_ERROR_CHECK(err_code);	
+				s_relay_latch_timer = APP_TIMER_STOP;
+			}
+			
 			if(s_relay_latch_timer == APP_TIMER_STOP)
 			{
 				err_code = app_timer_start(m_relay_latch_timer_id, RELAY_LATCH_INTERVAL, NULL);
@@ -1140,7 +1180,11 @@ void bsp_event_handler(bsp_event_t event)
 #endif			
 #ifdef DEBUG_LOG_RTT
 			SEGGER_RTT_printf(0, "SWITCH,OFF.\r\n");	
-#endif			
+#endif		
+
+			mesh_data.flag.key1 = 1;
+			rbc_mesh_value_set(1, (uint8_t *)&mesh_data, sizeof(mesh_data));
+			
 		}else
 		{			
 			relay_status = 1;
@@ -1152,7 +1196,16 @@ void bsp_event_handler(bsp_event_t event)
 			
 #endif			
 #ifdef RELAY_LATCH
+			uint32_t err_code;
 			relay_on();
+			
+			if(s_relay_latch_timer == APP_TIMER_START)
+			{
+				err_code = app_timer_stop(m_relay_latch_timer_id);
+				APP_ERROR_CHECK(err_code);	
+				s_relay_latch_timer = APP_TIMER_STOP;
+			}
+			
 			if(s_relay_latch_timer == APP_TIMER_STOP)
 			{
 				err_code = app_timer_start(m_relay_latch_timer_id, RELAY_LATCH_INTERVAL, NULL);
@@ -1169,6 +1222,8 @@ void bsp_event_handler(bsp_event_t event)
 #ifdef DEBUG_LOG_RTT
 			SEGGER_RTT_printf(0, "SWITCH,ON.\r\n");
 #endif
+			mesh_data.flag.key1 = 0;
+			rbc_mesh_value_set(1, (uint8_t *)&mesh_data, sizeof(mesh_data));			
 		}		
         break;
         case BSP_EVENT_KEY_2:
@@ -1481,7 +1536,7 @@ int main(void)
 //	app_pwm_enable(&PWM1);
 	application_timers_start();	
 //	motion_sound_event_set(HEARTBEAT_EVENT);
-//	rbc_mesh_stop();
+	rbc_mesh_stop();
     rbc_mesh_event_t evt;
     while (true)
     {
